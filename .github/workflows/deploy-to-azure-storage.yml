@@ -7,6 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
+  environment: production
   deploy:
     runs-on: ubuntu-latest
     
@@ -31,7 +32,7 @@ jobs:
             --name "index.html" \
             --file "index.html" \
             --content-type "text/html" \
-            --overwrite
+            --overwrite --auth-mode login
           
           az storage blob upload \
             --account-name "$STORAGE_ACCOUNT" \
@@ -39,7 +40,7 @@ jobs:
             --name "script.js" \
             --file "script.js" \
             --content-type "application/javascript" \
-            --overwrite
+            --overwrite --auth-mode login
           
           az storage blob upload \
             --account-name "$STORAGE_ACCOUNT" \
@@ -47,7 +48,7 @@ jobs:
             --name "styles.css" \
             --file "styles.css" \
             --content-type "text/css" \
-            --overwrite
+            --overwrite --auth-mode login
           
           echo "Files uploaded successfully to $STORAGE_ACCOUNT/$CONTAINER_NAME"
 
