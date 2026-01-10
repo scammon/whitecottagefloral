@@ -1,0 +1,18 @@
+{
+  "name": "whitecottagefloral",
+  "version": "1.0.0",
+  "description": "White Cottage Floral Design - Static Website",
+  "scripts": {
+    "build": "node build.js",
+    "watch": "node -e \"require('fs').watchFile('data.json', () => { require('child_process').exec('node build.js', console.log); }); require('fs').watchFile('index.template.html', () => { require('child_process').exec('node build.js', console.log); }); console.log('Watching for changes...');\""
+  },
+  "keywords": [
+    "static",
+    "website",
+    "floral",
+    "design"
+  ],
+  "author": "",
+  "license": "ISC"
+}
+
