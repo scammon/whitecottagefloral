@@ -7,8 +7,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  environment: production
   deploy:
+    environment: production
     runs-on: ubuntu-latest
     
     steps:
