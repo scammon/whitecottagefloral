@@ -15,6 +15,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build site
+        run: |
+          node build.js
+          echo "Site built successfully"
+
       - name: Azure Login
         uses: azure/login@v2
         with:

@@ -136,9 +136,25 @@ body {
     flex-direction: column;
     align-items: center;
     text-align: center;
-    padding: 2rem 1rem;
-    background: var(--secondary-color);
+    padding: 4rem 1rem;
+    background: var(--white);
+    background-image: var(--hero-bg-image);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
     position: relative;
+    width: 100%;
+}
+
+.hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.85);
+    z-index: 1;
 }
 
 .hero-content {
@@ -146,6 +162,7 @@ body {
     max-width: 100%;
     z-index: 2;
     margin-bottom: 2rem;
+    position: relative;
 }
 
 .hero-title {
@@ -193,6 +210,8 @@ body {
     width: 100%;
     max-width: 100%;
     margin-left: 0;
+    position: relative;
+    z-index: 2;
 }
 
 .hero-image img {
@@ -244,28 +263,7 @@ section {
 /* Experience Section */
 .experience-section {
     background: var(--white);
-    background-image: var(--bg-image-1);
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    position: relative;
     text-align: center;
-}
-
-.experience-section::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(255, 255, 255, 0.92);
-    z-index: 1;
-}
-
-.experience-section .container {
-    position: relative;
-    z-index: 2;
 }
 
 .experience-text {
@@ -325,13 +323,15 @@ section {
 }
 
 .testimonial-quote {
-    font-family: var(--font-serif);
-    font-size: 1.5rem;
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
     line-height: 1.6;
-    max-width: 100%;
-    margin: 0 auto 2rem;
+    max-width: 650px;
+    margin: 0 auto 1rem;
     color: var(--text-dark);
     font-weight: 300;
+    font-style: italic;
+    letter-spacing: 0.1px;
 }
 
 .testimonial-quote .highlight {
@@ -340,9 +340,107 @@ section {
 }
 
 .testimonial-author {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     color: var(--text-light);
-    font-style: italic;
+    font-style: normal;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+    margin-top: 0.5rem;
+}
+
+/* Testimonials Container */
+.testimonials-container {
+    position: relative;
+    min-height: 200px;
+}
+
+.testimonial-item {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.8s ease, visibility 0.8s ease;
+    width: 100%;
+}
+
+.testimonial-item.active {
+    opacity: 1;
+    visibility: visible;
+    position: relative;
+}
+
+/* Testimonial Navigation Arrows */
+.testimonial-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.8);
+    border: 2px solid var(--accent-color);
+    color: var(--accent-color);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    padding: 0;
+    line-height: 1;
+    opacity: 0;
+    visibility: hidden;
+}
+
+.testimonials-container:hover .testimonial-nav {
+    opacity: 1;
+    visibility: visible;
+}
+
+.testimonial-nav:hover {
+    background: var(--accent-color);
+    color: var(--white);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.testimonial-nav:active {
+    transform: translateY(-50%) scale(0.95);
+}
+
+.testimonial-nav-prev {
+    left: 20px;
+}
+
+.testimonial-nav-next {
+    right: 20px;
+}
+
+@media (max-width: 768px) {
+    .testimonial-nav {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+    }
+    
+    .testimonial-nav-prev {
+        left: 10px;
+    }
+    
+    .testimonial-nav-next {
+        right: 10px;
+    }
+}
+
+.testimonials-loading,
+.testimonials-error {
+    text-align: center;
+}
+
+.testimonials-error {
+    color: var(--text-light);
 }
 
 /* About Section - Mobile First */
@@ -545,6 +643,27 @@ section {
 /* Contact Section - Mobile First */
 .contact-section {
     background: var(--secondary-color);
+    background-image: var(--contact-bg-image);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+}
+
+.contact-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(245, 245, 245, 0.85);
+    z-index: 1;
+}
+
+.contact-section .container {
+    position: relative;
+    z-index: 2;
 }
 
 .contact-content {
@@ -553,6 +672,29 @@ section {
     gap: 2rem;
     max-width: 100%;
     margin: 0 auto;
+}
+
+.contact-left {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.contact-image {
+    width: 100%;
+    max-width: 500px;
+    text-align: center;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+}
+
+.contact-image img {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    border-radius: 4px;
+    cursor: default;
 }
 
 .contact-info {
@@ -765,7 +907,7 @@ section {
     }
 
     .testimonial-quote {
-        font-size: 1.8rem;
+        font-size: 0.95rem;
     }
 
     .about-header {
@@ -885,6 +1027,7 @@ section {
         flex: 1;
         max-width: 600px;
         margin-bottom: 0;
+        order: 2;
     }
 
     .hero-title {
@@ -912,7 +1055,9 @@ section {
     .hero-image {
         flex: 1;
         max-width: 600px;
-        margin-left: 3rem;
+        margin-right: 3rem;
+        margin-left: 0;
+        order: 1;
     }
 
     section {
@@ -944,8 +1089,8 @@ section {
     }
 
     .testimonial-quote {
-        font-size: 2rem;
-        max-width: 900px;
+        font-size: 1rem;
+        max-width: 700px;
     }
 
     .testimonial-author {
@@ -1010,6 +1155,27 @@ section {
     .contact-content {
         grid-template-columns: 1fr 1fr;
         gap: 4rem;
+        align-items: stretch;
+    }
+
+    .contact-left {
+        gap: 3rem;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .contact-image {
+        max-width: 100%;
+        margin: 0;
+        display: flex;
+        align-items: center;
+    }
+
+    .contact-image img {
+        object-fit: contain;
+        width: 100%;
+        height: auto;
+        max-height: 100%;
     }
 
     .footer {

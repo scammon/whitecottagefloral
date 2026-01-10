@@ -42,13 +42,13 @@
     </nav>
 
     <!-- Hero Section -->
-    <section id="home" class="hero">
+    <section id="home" class="hero" data-bg-image="blob-15e0e02.png">
         <div class="hero-content">
             <h1 class="hero-title">white cottage<br>floral design</h1>
-            <p class="hero-subtitle">CT | NY | RI | MA<br>+ Destinations</p>
+            <p class="hero-subtitle">Connecticut</p>
             <p class="hero-tagline">meaningful floral arrangements for<br>discerning clients</p>
             <p class="hero-specialty">specializing in weddings, events<br>& private installations</p>
-            <p class="hero-locations">CT | NY | RI | MA | DESTINATION</p>
+            <p class="hero-locations"></p>
         </div>
         <div class="hero-image">
             <img data-src="blob-15e0e02.png" alt="Beautiful floral arrangement">
@@ -60,51 +60,30 @@
         <!-- The Experience Section -->
         <section class="experience-section">
             <div class="container">
-                <h2 class="section-title">the<br><span class="large-text">FLORAL</span><br>experience</h2>
+                <h2 class="section-title">the<br><span class="large-text">FLORAL</span>experience</h2>
                 <p class="experience-text">
-                    Our clients prioritize stunning, unique floral designs that create unforgettable moments. 
-                    Wedding ceremonies, receptions, and special events are our specialty. We bring your vision 
-                    to life with fresh, locally-sourced blooms arranged with artistry and care.
+                    We are a premier floral design studio in Connecticut, committed to elevating life's most memorable moments. Whether it's a wedding, birthday, or simply a day you want to make extraordinary, our exquisite flowers are designed to transform your occasion into something unforgettable. Let us help you create the perfect atmosphere for every celebration.
                 </p>
                 <a href="#portfolio" class="cta-button">explore our work</a>
             </div>
         </section>
 
-        <!-- Testimonial -->
+        <!-- Testimonials -->
         <section class="testimonial-section">
             <div class="container">
-                <p class="testimonial-quote">
-                    "FROM THE MOMENT WE BEGAN WORKING SHE MADE ME<br>
-                    FEEL<br>
-                    <span class="highlight">seen, heard and at ease.</span>"
-                </p>
-                <p class="testimonial-author">— amanda, bride</p>
-            </div>
-        </section>
-
-        <!-- About Section -->
-        <section id="about" class="about-section">
-            <div class="container">
-                <div class="about-header">
-                    <h3 class="section-label">behind the founder</h3>
-                    <h2 class="section-heading">white cottage floral</h2>
-                </div>
-                <div class="about-content">
-                    <div class="about-image">
-                        <img data-src="IMG_1291.jpeg" alt="Floral designer at work">
+                <div id="testimonials-container" class="testimonials-container">
+                    <!-- Loading state -->
+                    <div id="testimonials-loading" class="testimonials-loading">
+                        <p class="testimonial-quote">Loading reviews...</p>
                     </div>
-                    <div class="about-text">
-                        <p>
-                            Hi, I'm Susan.
-                        </p>
-                        <p>
-                            I started White Cottage Floral Design with a deep passion for bringing beauty and nature 
-                            together. Having the trust to create the floral designs for your most important 
-                            moments is such an honor and truly fuels my soul. When you hire me, you should 
-                            know that I won't be satisfied until your floral arrangements are more beautiful 
-                            than you could have even imagined.
-                        </p>
+                    <!-- Error state -->
+                    <div id="testimonials-error" class="testimonials-error" style="display: none;">
+                        <p class="testimonial-quote">Unable to load reviews at this time.</p>
                     </div>
+                    <!-- Navigation arrows -->
+                    <button id="testimonial-prev" class="testimonial-nav testimonial-nav-prev" aria-label="Previous testimonial" style="display: none;">&#10094;</button>
+                    <button id="testimonial-next" class="testimonial-nav testimonial-nav-next" aria-label="Next testimonial" style="display: none;">&#10095;</button>
+                    <!-- Reviews will be dynamically inserted here -->
                 </div>
             </div>
         </section>
@@ -115,22 +94,22 @@
                 <h3 class="section-label">our offerings</h3>
                 <h2 class="section-heading">weddings<br>& events</h2>
                 <div class="services-grid">
+                    
                     <div class="service-item">
-                        <h4>Wedding Florals</h4>
-                        <p>Bridal bouquets, ceremony arrangements, reception centerpieces, and more</p>
+                        <h4>Romantic Bouquets</h4>
+                        <p>Surprise your loved one with a romantic bouquet. Our expert florists will create a stunning bouquet that will take their breath away.</p>
                     </div>
+                    
                     <div class="service-item">
-                        <h4>Event Design</h4>
-                        <p>Corporate events, private parties, and special celebrations</p>
+                        <h4>Wedding Flowers</h4>
+                        <p>Make your wedding day unforgettable with beautiful flowers. We offer a wide range of wedding flower services, including bridal bouquets, centerpieces, and more.</p>
                     </div>
+                    
                     <div class="service-item">
-                        <h4>Installations</h4>
-                        <p>Large-scale floral installations and arch designs</p>
+                        <h4>Corporate Events</h4>
+                        <p>Add a touch of elegance to your next corporate event with flowers. Our expert team will work with you to create a custom floral design that fits your brand and vision.</p>
                     </div>
-                    <div class="service-item">
-                        <h4>Consultations</h4>
-                        <p>Personalized design consultations to bring your vision to life</p>
-                    </div>
+                    
                 </div>
                 <a href="#portfolio" class="cta-button">explore the portfolio</a>
             </div>
@@ -139,121 +118,105 @@
         <!-- Portfolio Section -->
         <section id="portfolio" class="portfolio-section">
             <div class="container">
-                <h2 class="section-title">portfolio</h2>
+                <h2 class="section-title">Nature's colors: A gallery of blooms</h2>
                 <div class="portfolio-grid">
-                    <div class="portfolio-item">
-                        <img data-src="IMG_0210.jpeg" alt="Wedding floral arrangement">
-                    </div>
+                    
                     <div class="portfolio-item">
                         <img data-src="RachelStevenWedding2024FinalsColor-15-a0aa259.jpeg" alt="Bridal bouquet">
                     </div>
+                    
+                    <div class="portfolio-item">
+                        <img data-src="IMG_0210.jpeg" alt="Wedding floral arrangement">
+                    </div>
+                    
                     <div class="portfolio-item">
                         <img data-src="IMG_0166.jpeg" alt="Ceremony arch">
                     </div>
+                    
                     <div class="portfolio-item">
                         <img data-src="image_b09a5869.jpg" alt="Reception centerpiece">
                     </div>
+                    
                     <div class="portfolio-item">
                         <img data-src="image_fdc18967.jpg" alt="Event installation">
                     </div>
+                    
                     <div class="portfolio-item">
                         <img data-src="IMG_3486.jpeg" alt="Floral design">
                     </div>
+                    
                     <div class="portfolio-item">
                         <img data-src="IMG_4071.jpeg" alt="Floral arrangement">
                     </div>
+                    
                     <div class="portfolio-item">
                         <img data-src="IMG_3551.jpeg" alt="Wedding flowers">
                     </div>
+                    
                     <div class="portfolio-item">
                         <img data-src="image_b4845cb0.jpg" alt="Floral design">
                     </div>
+                    
                     <div class="portfolio-item">
                         <img data-src="image_8e2b1ccd.jpg" alt="Bridal party bouquets">
                     </div>
+                    
                     <div class="portfolio-item">
                         <img data-src="IMG_0795.jpeg" alt="Floral arrangement">
                     </div>
+                    
                     <div class="portfolio-item">
                         <img data-src="IMG_2532.jpg" alt="Floral arrangement">
                     </div>
+                    
                     <div class="portfolio-item">
                         <img data-src="IMG_3385.jpg" alt="Wedding flowers">
                     </div>
+                    
                     <div class="portfolio-item">
                         <img data-src="IMG_3883.jpg" alt="Floral design">
                     </div>
+                    
                     <div class="portfolio-item">
                         <img data-src="IMG_7463.jpg" alt="Floral arrangement">
                     </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Things We Strive For Section -->
-        <section class="standards-section">
-            <div class="container">
-                <h2 class="section-title">things we <em>strive for</em></h2>
-                <ul class="standards-list">
-                    <li>Fresh, vibrant blooms at peak perfection</li>
-                    <li>Unique, custom-designed arrangements</li>
-                    <li>Thoughtful planning and advance coordination</li>
-                    <li>Uncompromising quality in every detail</li>
-                    <li>Designs that authentically reflect your personal style</li>
-                    <li>Seasonal flowers with full transparency</li>
-                    <li>Arrangements that perfectly match your color palette</li>
-                    <li>Clear, consistent communication throughout the process</li>
-                    <li>Florals that beautifully complement your venue</li>
-                    <li>The personal touch that makes every moment special</li>
-                </ul>
-            </div>
-        </section>
-
-        <!-- Location Section -->
-        <section class="location-section">
-            <div class="container">
-                <div class="location-content">
-                    <div class="location-text">
-                        <h3>we are based in connecticut</h3>
-                        <p>but love to</p>
-                        <h3>travel to our<br>favorite places:</h3>
-                    </div>
-                    <div class="location-list">
-                        <p>Rhode Island | New York | Boston | Cape Cod | Destination</p>
-                    </div>
+                    
                 </div>
             </div>
         </section>
 
         <!-- Contact Section -->
-        <section id="contact" class="contact-section">
+        <section id="contact" class="contact-section" data-bg-image="drawnarch.webp">
             <div class="container">
                 <h2 class="section-title">get in touch</h2>
                 <div class="contact-content">
-                    <div class="contact-info">
-                        <p class="contact-label">White Cottage Floral Design</p>
-                        <p>Connecticut Floral Designer<br>
-                        Serving all of New England<br>
-                        Wedding Florals are our specialty</p>
+                    <div class="contact-left">
+                        <div class="contact-info">
+                            <p class="contact-label">Your needs are important to us!</p>
+                            <p>We stay in constant communication with our customers until the job is done. If you have any questions, please contact us. To get a free quote or make an appointment, please fill out the form below, email us, or give us a call.<br><br>The White Cottage Floral Design<br>860-916-9497<br>thewhitecottagefloraldesign@gmail.com</p>
+                        </div>
+                        <div class="contact-form">
+                            <form id="contactForm" action="https://api.web3forms.com/submit" method="POST">
+                                <input type="hidden" name="access_key" value="d5b4112d-ba34-40f3-bfb8-834603d16f17">
+                                <div class="form-group">
+                                    <input type="text" id="name" name="name" placeholder="Your Name" required>
+                                </div>
+                                <div class="form-group">
+                                    <input type="email" id="email" name="email" placeholder="Your Email" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="event-date" class="form-label">Event Date</label>
+                                    <input type="date" id="event-date" name="event-date">
+                                </div>
+                                <div class="form-group">
+                                    <textarea id="message" name="message" rows="5" placeholder="Tell us about your event..." required></textarea>
+                                </div>
+                                <button type="submit" class="submit-button">send message</button>
+                            </form>
+                        </div>
                     </div>
-                    <div class="contact-form">
-                        <form id="contactForm" action="https://api.web3forms.com/submit" method="POST">
-                            <input type="hidden" name="access_key" value="d5b4112d-ba34-40f3-bfb8-834603d16f17">
-                            <div class="form-group">
-                                <input type="text" id="name" name="name" placeholder="Your Name" required>
-                            </div>
-                            <div class="form-group">
-                                <input type="email" id="email" name="email" placeholder="Your Email" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="event-date" class="form-label">Event Date</label>
-                                <input type="date" id="event-date" name="event-date">
-                            </div>
-                            <div class="form-group">
-                                <textarea id="message" name="message" rows="5" placeholder="Tell us about your event..." required></textarea>
-                            </div>
-                            <button type="submit" class="submit-button">send message</button>
-                        </form>
+                    <div class="contact-image">
+                        <img data-src="drawnarch.webp" alt="Floral arch design" class="no-modal">
                     </div>
                 </div>
             </div>
@@ -297,3 +260,4 @@
     <script src="script.js"></script>
 </body>
 </html>
+

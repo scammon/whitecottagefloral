@@ -38,10 +38,46 @@ function initializeImagePaths() {
     root.style.setProperty('--bg-image-2', `url('${imageBasePath}/IMG_7463.jpg')`);
     root.style.setProperty('--bg-image-3', `url('${imageBasePath}/IMG_2532.jpg')`);
     
+    // Set hero section background image from data attribute
+    const heroSection = document.querySelector('.hero');
+    if (heroSection) {
+        const heroImage = heroSection.getAttribute('data-bg-image');
+        if (heroImage) {
+            root.style.setProperty('--hero-bg-image', `url('${imageBasePath}/${heroImage}')`);
+        }
+    }
+    
+    // Set contact section background image from data attribute
+    const contactSection = document.querySelector('.contact-section');
+    if (contactSection) {
+        const contactImage = contactSection.getAttribute('data-bg-image');
+        if (contactImage) {
+            root.style.setProperty('--contact-bg-image', `url('${imageBasePath}/${contactImage}')`);
+        }
+    }
+    
     // Initialize modal after images are loaded (small delay to ensure src is set)
     setTimeout(() => {
         initializeModal();
     }, 100);
+    
+    // Set minimum date for event date input (60 days from today)
+    const eventDateInput = document.getElementById('event-date');
+    if (eventDateInput) {
+        const today = new Date();
+        const minDate = new Date(today);
+        minDate.setDate(today.getDate() + 60);
+        const minDateString = minDate.toISOString().split('T')[0];
+        eventDateInput.setAttribute('min', minDateString);
+        
+        // Set default value to 90 days from today if not already set
+        if (!eventDateInput.value) {
+            const defaultDate = new Date(today);
+            defaultDate.setDate(today.getDate() + 90);
+            const defaultDateString = defaultDate.toISOString().split('T')[0];
+            eventDateInput.value = defaultDateString;
+        }
+    }
 }
 
 // Wait for DOM to be ready and ensure IMAGE_BASE_PATH is set
@@ -193,7 +229,7 @@ let currentImageIndex = 0;
 // Initialize modal
 function initializeModal() {
     const images = Array.from(document.querySelectorAll('img')).filter(img => 
-        img.id !== 'modalImage' && !img.closest('#imageModal') && img.src
+        img.id !== 'modalImage' && !img.closest('#imageModal') && img.src && !img.classList.contains('no-modal')
     );
     
     pageImages = images.map(img => ({
@@ -306,3 +342,239 @@ if (modalImage) {
         }
     }, { passive: true });
 }
+
+// Fallback testimonials (used if JSON file can't be loaded)
+const FALLBACK_TESTIMONIALS = [
+    {
+        "text": "Sue has done my 3 daughters wedding bouquets, full reception table and venue arrangements. I was so impressed with Sue's ability to take my girl's styles and wishes to create such beautiful designs that were to what they wanted for their special day! Everything came out so beautiful and exactly what they wanted. She goes above and beyond to provide great customer service and make sure your venue looks perfect on time for the day. She was able to provide ideas promptly based on our communications. Flowers were fresh and held up perfectly. I would recommend for any occasion.",
+        "author": "linda"
+    },
+    {
+        "text": "Sue was amazing to work with! While we didn't get a chance to meet her in person, our voice and text conversations were all she needed for her talent to run and deliver. Big and gorgeous blooms - our garden party wedding was SO chic.",
+        "author": "toria"
+    },
+    {
+        "text": "I was so impressed with Sue's ability to take my imagination and make it happen! Flowers were so beautiful and exactly what I wanted. Customer service was incredible. Communication was easy and prompt. Flowers were fresh and held up perfectly.",
+        "author": "rachel"
+    }
+];
+
+// Load testimonials from JSON file
+async function loadTestimonials() {
+    const container = document.getElementById('testimonials-container');
+    const loadingEl = document.getElementById('testimonials-loading');
+    const errorEl = document.getElementById('testimonials-error');
+    
+    if (!container) return;
+    
+    try {
+        // Hide error, show loading
+        if (errorEl) errorEl.style.display = 'none';
+        if (loadingEl) loadingEl.style.display = 'block';
+        
+        // Fetch testimonials.json
+        const response = await fetch('testimonials.json');
+        if (!response.ok) {
+            throw new Error(`Failed to load testimonials: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        const testimonials = data.testimonials || [];
+        
+        if (testimonials.length === 0) {
+            throw new Error('No testimonials found in testimonials.json');
+        }
+        
+        // Hide loading, render testimonials
+        if (loadingEl) loadingEl.style.display = 'none';
+        renderTestimonials(testimonials);
+        
+    } catch (error) {
+        console.error('Error loading testimonials:', error);
+        console.warn('Using fallback testimonials. If you see this, make sure you\'re running from a web server (not file://) or check that testimonials.json is accessible.');
+        
+        // Use fallback testimonials
+        if (loadingEl) loadingEl.style.display = 'none';
+        if (errorEl) errorEl.style.display = 'none';
+        renderTestimonials(FALLBACK_TESTIMONIALS);
+    }
+}
+
+// Testimonials carousel state
+let testimonialsData = [];
+let currentTestimonialIndex = 0;
+let testimonialInterval = null;
+
+// Render testimonials in carousel format
+function renderTestimonials(testimonials) {
+    const container = document.getElementById('testimonials-container');
+    if (!container) return;
+    
+    // Clear loading/error states
+    const loadingEl = document.getElementById('testimonials-loading');
+    const errorEl = document.getElementById('testimonials-error');
+    const prevBtn = document.getElementById('testimonial-prev');
+    const nextBtn = document.getElementById('testimonial-next');
+    
+    if (loadingEl) loadingEl.style.display = 'none';
+    if (errorEl) errorEl.style.display = 'none';
+    
+    // Store testimonials data
+    testimonialsData = testimonials;
+    currentTestimonialIndex = 0;
+    
+    // Show navigation arrows if more than one testimonial (hidden by default, shown on hover via CSS)
+    if (testimonials.length > 1) {
+        if (prevBtn) prevBtn.style.display = 'flex';
+        if (nextBtn) nextBtn.style.display = 'flex';
+    } else {
+        if (prevBtn) prevBtn.style.display = 'none';
+        if (nextBtn) nextBtn.style.display = 'none';
+    }
+    
+    // Clear existing testimonials (but keep navigation buttons)
+    const existingItems = container.querySelectorAll('.testimonial-item');
+    existingItems.forEach(item => item.remove());
+    
+    // Create HTML for all testimonials (hidden by default)
+    const testimonialsHTML = testimonials.map((testimonial, index) => {
+        const authorName = testimonial.author || 'Anonymous';
+        // Title case the author name (capitalize first letter)
+        const capitalizedName = authorName.charAt(0).toUpperCase() + authorName.slice(1).toLowerCase();
+        const text = testimonial.text || '';
+        
+        // Format text - break into lines for better display, preserve existing formatting
+        // Keep original case (not uppercase) for softer appearance
+        const formattedText = text.replace(/\n/g, '<br>');
+        
+        return `
+            <div class="testimonial-item ${index === 0 ? 'active' : ''}">
+                <p class="testimonial-quote">${formattedText}</p>
+                <p class="testimonial-author">— ${capitalizedName}</p>
+            </div>
+        `;
+    }).join('');
+    
+    // Insert testimonials into container
+    container.insertAdjacentHTML('beforeend', testimonialsHTML);
+    
+    // Start auto-rotation
+    startTestimonialRotation();
+}
+
+// Show specific testimonial
+function showTestimonial(index) {
+    const items = document.querySelectorAll('.testimonial-item');
+    if (items.length === 0) return;
+    
+    // Ensure index is within bounds
+    if (index < 0) {
+        index = testimonialsData.length - 1;
+    } else if (index >= testimonialsData.length) {
+        index = 0;
+    }
+    
+    currentTestimonialIndex = index;
+    
+    // Update active class
+    items.forEach((item, i) => {
+        item.classList.toggle('active', i === index);
+    });
+}
+
+// Navigate to next testimonial
+function nextTestimonial() {
+    showTestimonial(currentTestimonialIndex + 1);
+    resetTestimonialRotation();
+}
+
+// Navigate to previous testimonial
+function prevTestimonial() {
+    showTestimonial(currentTestimonialIndex - 1);
+    resetTestimonialRotation();
+}
+
+// Start auto-rotation (15 seconds)
+function startTestimonialRotation() {
+    if (testimonialsData.length <= 1) return;
+    
+    testimonialInterval = setInterval(() => {
+        nextTestimonial();
+    }, 15000); // 15 seconds
+}
+
+// Reset rotation timer
+function resetTestimonialRotation() {
+    if (testimonialInterval) {
+        clearInterval(testimonialInterval);
+    }
+    startTestimonialRotation();
+}
+
+// Stop rotation (when user manually navigates)
+function stopTestimonialRotation() {
+    if (testimonialInterval) {
+        clearInterval(testimonialInterval);
+        testimonialInterval = null;
+    }
+}
+
+// Swipe support for mobile testimonials
+let testimonialTouchStartX = 0;
+let testimonialTouchEndX = 0;
+
+function handleTestimonialSwipe() {
+    const container = document.getElementById('testimonials-container');
+    if (!container) return;
+    
+    container.addEventListener('touchstart', (e) => {
+        testimonialTouchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+    
+    container.addEventListener('touchend', (e) => {
+        testimonialTouchEndX = e.changedTouches[0].screenX;
+        const diff = testimonialTouchStartX - testimonialTouchEndX;
+        const threshold = 50; // Minimum swipe distance
+        
+        if (Math.abs(diff) > threshold) {
+            if (diff > 0) {
+                // Swiped left - next
+                nextTestimonial();
+            } else {
+                // Swiped right - previous
+                prevTestimonial();
+            }
+        }
+    }, { passive: true });
+}
+
+// Initialize testimonials on page load
+document.addEventListener('DOMContentLoaded', () => {
+    loadTestimonials();
+    
+    // Set up navigation button event listeners
+    const prevBtn = document.getElementById('testimonial-prev');
+    const nextBtn = document.getElementById('testimonial-next');
+    
+    if (prevBtn) {
+        prevBtn.addEventListener('click', () => {
+            prevTestimonial();
+        });
+    }
+    
+    if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+            nextTestimonial();
+        });
+    }
+    
+    // Pause rotation on hover
+    const container = document.getElementById('testimonials-container');
+    if (container) {
+        container.addEventListener('mouseenter', stopTestimonialRotation);
+        container.addEventListener('mouseleave', startTestimonialRotation);
+    }
+    
+    // Add swipe support for mobile
+    handleTestimonialSwipe();
+});
