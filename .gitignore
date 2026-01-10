@@ -1,5 +1,19 @@
-downloaded_images/
-.venv
-requirements.txt
-*.md
-!README.md
+# Dependencies
+node_modules/
+
+# Build artifacts (optional - you may want to commit index.html)
+# index.html
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Preview data (working file, not production)
+data-preview.json

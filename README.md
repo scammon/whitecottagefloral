@@ -6,10 +6,14 @@ A beautiful, modern static website for White Cottage Floral Design, designed to 
 
 ```
 .
-├── index.html      # Main HTML file
-├── styles.css      # All styling
-├── script.js       # Interactive functionality
-└── README.md       # This file
+├── index.html          # Generated HTML file (built from template)
+├── index.template.html # HTML template with placeholders
+├── data.json           # All text content in JSON format
+├── build.js            # Build script to generate index.html
+├── styles.css          # All styling
+├── script.js           # Interactive functionality
+├── package.json        # Node.js dependencies and scripts
+└── README.md           # This file
 ```
 
 ## Setup Instructions
@@ -51,16 +55,58 @@ Replace all instances of `YOUR_AZURE_STORAGE_URL` in `index.html` with your actu
 
 ### 3. Customize Content
 
-Update the following in `index.html`:
+**Using the Template System (Recommended):**
 
-1. **About Section**: Replace `[Your Name]` with your actual name
-2. **Contact Information**: Update contact details in the footer and contact section
-3. **Social Media**: Update the Instagram handle `@whitecottagefloral` if different
-4. **Testimonials**: Replace with your actual client testimonials
-5. **Services**: Customize service descriptions to match your offerings
-6. **Location**: Update locations if different
+All text content is now stored in `data.json`, making it much easier to edit! Simply:
 
-### 4. Deploy to Azure Storage
+1. **Edit `data.json`** - Update any text content you want to change
+2. **Run the build script** - Execute `npm run build` or `node build.js`
+3. **The updated `index.html` will be generated automatically**
+
+**Example:** To change the hero tagline, edit `data.json`:
+```json
+"hero": {
+  "tagline": "your new tagline here"
+}
+```
+
+Then run `npm run build` to regenerate `index.html`.
+
+**What you can edit in `data.json`:**
+- All text content (headings, paragraphs, descriptions)
+- Navigation labels
+- Service items (add/remove/edit services)
+- Portfolio images (add/remove images)
+- Standards list items
+- Contact information
+- Social media links
+- Image paths and alt text
+
+**Manual Editing (Alternative):**
+
+If you prefer to edit HTML directly, you can still edit `index.html`, but remember to run `npm run build` after making changes to `data.json` to regenerate the HTML.
+
+### 4. Build the Site
+
+Before deploying, make sure to build the site:
+
+```bash
+# Install dependencies (if needed)
+npm install
+
+# Build the site (generates index.html from template)
+npm run build
+```
+
+This will generate `index.html` from `index.template.html` using the content in `data.json`.
+
+**Watch Mode (Optional):**
+For development, you can use watch mode to automatically rebuild when files change:
+```bash
+npm run watch
+```
+
+### 5. Deploy to Azure Storage
 
 **Option A: Using Azure Portal**
 1. Go to your Storage Account
@@ -105,7 +151,7 @@ az storage blob upload-batch \
 3. Navigate to the `$web` container
 4. Upload `index.html`, `styles.css`, and `script.js`
 
-### 5. Custom Domain (Optional)
+### 6. Custom Domain (Optional)
 
 To use a custom domain:
 1. Go to your Storage Account → "Custom domain" settings
@@ -113,7 +159,62 @@ To use a custom domain:
 3. Configure DNS CNAME record pointing to your Azure Storage endpoint
 4. Enable HTTPS (requires Azure CDN or similar)
 
-### 6. Contact Form Setup
+### 7. Google Reviews Setup (Testimonials)
+
+The testimonials section now pulls 5-star reviews from Google Reviews. **For static sites, you'll need to put the API key directly in the code** (see Option B below).
+
+**Option A: Using Backend Proxy** (Only if you have a backend server)
+
+If you have a backend server (like Azure Functions, or the editor server), you can use a proxy endpoint to keep your API key secure:
+
+1. Get your API key and Place ID (see Option B, steps 1-2)
+2. Configure your backend to proxy requests (see `editor/server.js` for an example)
+3. Set `proxyEndpoint` in `script.js` to your backend URL
+
+**Option B: Direct API Calls** (For Static Sites - Recommended)
+
+Since this is a static site, you'll put the API key directly in `script.js`. **This is safe IF you properly restrict the API key.**
+
+1. **Get a Google Places API Key:**
+   - Go to [Google Cloud Console](https://console.cloud.google.com/)
+   - Create a new project or select an existing one
+   - Enable the "Places API" (or "Places API (New)")
+   - Go to "Credentials" > "Create Credentials" > "API Key"
+   - Copy your API key
+
+2. **Find your Place ID:**
+   - Use the [Place ID Finder](https://developers.google.com/maps/documentation/places/web-service/place-id#find-id)
+   - Search for "White Cottage Floral Design" or "thewhitecottagefloraldesign.com"
+   - Copy the Place ID from the result
+
+3. **CRITICAL: Restrict your API key** (Required for security):
+   - In Google Cloud Console, go to: **APIs & Services > Credentials**
+   - Click on your API key
+   - Under **"Application restrictions"**:
+     - Select **"HTTP referrers (web sites)"**
+     - Add your domain(s):
+       - `https://your-domain.com/*`
+       - `https://*.your-domain.com/*`
+       - `https://your-storage-account.z13.web.core.windows.net/*` (if using Azure Storage)
+   - Under **"API restrictions"**:
+     - Select **"Restrict key"**
+     - Check only **"Places API"** (or "Places API (New)")
+   - Click **"Save"**
+   
+   ⚠️ **Without these restrictions, anyone can use your API key and you may be charged for their usage!**
+
+4. **Update script.js:**
+   - Open `script.js`
+   - Find the `GOOGLE_PLACES_CONFIG` object
+   - Set your `apiKey` and `placeId`:
+     ```javascript
+     apiKey: 'AIzaSyAbCdEfGhIjKlMnOpQrStUvWxYz1234567',
+     placeId: 'ChIJN1t_tDeuEmsRUsoyG83frY4'
+     ```
+
+**Note:** If the API is not configured, the site will show a fallback testimonial.
+
+### 8. Contact Form Setup
 
 The contact form currently uses client-side JavaScript. For a production site, you'll want to:
 
@@ -148,6 +249,38 @@ This website is compatible with:
 
 ## Customization
 
+### Editing Content (Template System)
+
+**All text content is in `data.json`** - this makes editing much simpler!
+
+1. **Edit `data.json`** with your changes
+2. **Run `npm run build`** to regenerate `index.html`
+3. **Deploy** the updated files
+
+**Common edits:**
+- **Change hero text**: Edit `hero.title`, `hero.tagline`, etc. in `data.json`
+- **Update about section**: Edit `about.intro` and `about.text`
+- **Add/remove services**: Edit the `services.items` array
+- **Add/remove portfolio images**: Edit the `portfolio.images` array
+- **Update standards list**: Edit the `standards.items` array
+- **Change contact info**: Edit `contact.label` and `contact.description`
+
+**Example - Adding a new service:**
+```json
+"services": {
+  "items": [
+    {
+      "title": "Wedding Florals",
+      "description": "..."
+    },
+    {
+      "title": "Your New Service",
+      "description": "Description here"
+    }
+  ]
+}
+```
+
 ### Colors
 Edit the CSS variables in `styles.css`:
 ```css
@@ -159,7 +292,7 @@ Edit the CSS variables in `styles.css`:
 ```
 
 ### Fonts
-The site uses Google Fonts (Playfair Display & Inter). To change fonts, update the font imports in `index.html` and the font-family variables in `styles.css`.
+The site uses Google Fonts (Playfair Display & Inter). To change fonts, update the font imports in `index.template.html` and the font-family variables in `styles.css`.
 
 ## Notes
 
