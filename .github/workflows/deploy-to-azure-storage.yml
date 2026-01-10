@@ -1,0 +1,53 @@
+name: Deploy to Azure Storage
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Upload files to Azure Storage
+        run: |
+          STORAGE_ACCOUNT="${{ vars.AZURE_STORAGE_ACCOUNT }}"
+          CONTAINER_NAME="${{ vars.AZURE_STORAGE_CONTAINER }}"
+          
+          # Upload each file
+          az storage blob upload \
+            --account-name "$STORAGE_ACCOUNT" \
+            --container-name "$CONTAINER_NAME" \
+            --name "index.html" \
+            --file "index.html" \
+            --content-type "text/html" \
+            --overwrite
+          
+          az storage blob upload \
+            --account-name "$STORAGE_ACCOUNT" \
+            --container-name "$CONTAINER_NAME" \
+            --name "script.js" \
+            --file "script.js" \
+            --content-type "application/javascript" \
+            --overwrite
+          
+          az storage blob upload \
+            --account-name "$STORAGE_ACCOUNT" \
+            --container-name "$CONTAINER_NAME" \
+            --name "styles.css" \
+            --file "styles.css" \
+            --content-type "text/css" \
+            --overwrite
+          
+          echo "Files uploaded successfully to $STORAGE_ACCOUNT/$CONTAINER_NAME"
+
