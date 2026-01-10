@@ -25,30 +25,54 @@ jobs:
           STORAGE_ACCOUNT="${{ vars.AZURE_STORAGE_ACCOUNT }}"
           CONTAINER_NAME="${{ vars.AZURE_STORAGE_CONTAINER }}"
           
+          # Verify variables are set
+          if [ -z "$STORAGE_ACCOUNT" ] || [ -z "$CONTAINER_NAME" ]; then
+            echo "Error: Storage account or container name is not set"
+            exit 1
+          fi
+          
+          # Verify files exist
+          if [ ! -f "index.html" ] || [ ! -f "script.js" ] || [ ! -f "styles.css" ]; then
+            echo "Error: Required files not found"
+            ls -la
+            exit 1
+          fi
+          
+          # Get storage account connection string
+          CONNECTION_STRING=$(az storage account show-connection-string \
+            --name "$STORAGE_ACCOUNT" \
+            --resource-group $(az storage account show --name "$STORAGE_ACCOUNT" --query resourceGroup -o tsv) \
+            --query connectionString -o tsv)
+          
+          if [ -z "$CONNECTION_STRING" ]; then
+            echo "Error: Failed to get connection string"
+            exit 1
+          fi
+          
           # Upload each file
           az storage blob upload \
-            --account-name "$STORAGE_ACCOUNT" \
+            --connection-string "$CONNECTION_STRING" \
             --container-name "$CONTAINER_NAME" \
             --name "index.html" \
-            --file "index.html" \
+            --file "./index.html" \
             --content-type "text/html" \
-            --overwrite --auth-mode login
+            --overwrite
           
           az storage blob upload \
-            --account-name "$STORAGE_ACCOUNT" \
+            --connection-string "$CONNECTION_STRING" \
             --container-name "$CONTAINER_NAME" \
             --name "script.js" \
-            --file "script.js" \
+            --file "./script.js" \
             --content-type "application/javascript" \
-            --overwrite --auth-mode login
+            --overwrite
           
           az storage blob upload \
-            --account-name "$STORAGE_ACCOUNT" \
+            --connection-string "$CONNECTION_STRING" \
             --container-name "$CONTAINER_NAME" \
             --name "styles.css" \
-            --file "styles.css" \
+            --file "./styles.css" \
             --content-type "text/css" \
-            --overwrite --auth-mode login
+            --overwrite
           
           echo "Files uploaded successfully to $STORAGE_ACCOUNT/$CONTAINER_NAME"
 
