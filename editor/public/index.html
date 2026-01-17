@@ -1,0 +1,2571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>White Cottage Floral - Editor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 420px;
+            background: white;
+            border-right: 1px solid #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .changes-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .change-item {
+            padding: 12px;
+            margin-bottom: 8px;
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-left: 3px solid #3498db;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .change-item h4 {
+            font-size: 12px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 4px;
+        }
+
+        .change-item .change-path {
+            color: #7f8c8d;
+            font-size: 11px;
+            font-family: monospace;
+            margin-bottom: 4px;
+        }
+
+        .change-item .change-value {
+            color: #27ae60;
+            font-size: 12px;
+            word-break: break-word;
+        }
+
+        .change-item .change-old {
+            color: #e74c3c;
+            text-decoration: line-through;
+            font-size: 11px;
+            margin-bottom: 2px;
+        }
+
+        .no-changes {
+            padding: 40px 20px;
+            text-align: center;
+            color: #7f8c8d;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            background: #2c3e50;
+            color: white;
+        }
+
+        .sidebar-header h1 {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .publish-button {
+            width: 100%;
+            padding: 12px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .publish-button:hover:not(:disabled) {
+            background: #229954;
+        }
+
+        .publish-button:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        .section-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .section-item {
+            padding: 12px;
+            margin-bottom: 8px;
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .section-item:hover {
+            background: #e9ecef;
+            border-color: #adb5bd;
+        }
+
+        .section-item.active {
+            background: #3498db;
+            color: white;
+            border-color: #2980b9;
+        }
+
+        .section-item h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .section-item p {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .editor-panel {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .editor-side {
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #e0e0e0;
+            background: white;
+        }
+
+        .preview-side {
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+            background: #f8f9fa;
+        }
+
+        .editor-header {
+            padding: 15px 20px;
+            background: white;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .editor-header h2 {
+            font-size: 18px;
+        }
+
+        .preview-header {
+            padding: 15px 20px;
+            background: #2c3e50;
+            color: white;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .preview-header h2 {
+            font-size: 18px;
+            color: white;
+        }
+
+        .preview-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .preview-controls button {
+            padding: 6px 12px;
+            border: 1px solid rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .preview-controls button:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .editor-content {
+            flex: 1;
+            overflow: auto;
+            padding: 20px;
+            background: white;
+        }
+
+        .preview-content {
+            flex: 1;
+            overflow: auto;
+            position: relative;
+        }
+
+        .preview-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+            transition: all 0.3s ease;
+        }
+        
+        .preview-content.mobile-view {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px;
+            background: #2c3e50;
+            overflow: auto;
+        }
+        
+        .preview-content.mobile-view .preview-iframe {
+            width: 375px;
+            height: 667px;
+            border: 8px solid #1a1a1a;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            background: white;
+        }
+        
+        .preview-content.mobile-view .editable-overlay,
+        .preview-content.mobile-view .edit-mode-indicator {
+            display: none;
+        }
+
+        .preview-loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #7f8c8d;
+        }
+
+        /* Editable preview styles */
+        .editable-overlay {
+            position: absolute;
+            border: 2px dashed #3498db;
+            background: rgba(52, 152, 219, 0.1);
+            pointer-events: none;
+            z-index: 1000;
+            display: none;
+        }
+
+        .editable-overlay.active {
+            display: block;
+        }
+
+        .editable-overlay-label {
+            position: absolute;
+            top: -20px;
+            left: 0;
+            background: #3498db;
+            color: white;
+            padding: 2px 6px;
+            font-size: 11px;
+            border-radius: 2px;
+        }
+
+        .preview-content {
+            position: relative;
+        }
+
+        .edit-mode-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #27ae60;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            z-index: 1001;
+            display: none;
+        }
+
+        .edit-mode-indicator.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-group input[type="text"]:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .array-item {
+            background: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+        }
+
+        .array-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .array-item-header h4 {
+            font-size: 14px;
+            color: #555;
+        }
+
+        .remove-button {
+            padding: 6px 12px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .add-button {
+            padding: 10px 20px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            font-size: 16px;
+            color: #7f8c8d;
+        }
+
+        .error {
+            padding: 15px;
+            background: #fee;
+            border: 1px solid #fcc;
+            border-radius: 4px;
+            color: #c33;
+            margin-bottom: 20px;
+        }
+
+        .success {
+            padding: 15px;
+            background: #efe;
+            border: 1px solid #cfc;
+            border-radius: 4px;
+            color: #3c3;
+            margin-bottom: 20px;
+        }
+
+        .nested-object {
+            margin-left: 20px;
+            padding-left: 20px;
+            border-left: 2px solid #e0e0e0;
+        }
+
+        /* Photo Viewer Styles */
+        .photo-viewer {
+            flex: 1;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            background: white;
+        }
+
+        .upload-area {
+            border: 3px dashed #3498db;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            background: #f8f9fa;
+            margin: 20px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .upload-area:hover,
+        .upload-area.dragover {
+            border-color: #2980b9;
+            background: #e3f2fd;
+        }
+
+        .upload-area.dragover {
+            border-color: #27ae60;
+            background: #e8f5e9;
+        }
+
+        .upload-area p {
+            margin: 10px 0;
+            color: #555;
+        }
+
+        .upload-area .upload-icon {
+            font-size: 48px;
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+
+        .photos-grid {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: block;
+        }
+
+        .photos-grid.has-photos {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .photo-item {
+            position: relative;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .photo-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .photo-item img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            display: block;
+            background: #f0f0f0;
+        }
+
+        .photo-item img[src=""] {
+            display: none;
+        }
+
+        .photo-item-info {
+            padding: 10px;
+        }
+
+        .photo-item-name {
+            font-size: 12px;
+            color: #555;
+            word-break: break-all;
+            margin-bottom: 8px;
+        }
+
+        .photo-item-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .photo-item-actions button {
+            flex: 1;
+            padding: 6px;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .copy-button {
+            background: #3498db;
+            color: white;
+        }
+
+        .copy-button:hover {
+            background: #2980b9;
+        }
+
+        .delete-button {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .delete-button:hover {
+            background: #c0392b;
+        }
+
+        .photo-loading {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+
+        .upload-progress {
+            margin: 10px 20px;
+            padding: 10px;
+            background: #e3f2fd;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .upload-progress.active {
+            display: block;
+        }
+
+        .upload-progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #bdc3c7;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .upload-progress-fill {
+            height: 100%;
+            background: #3498db;
+            transition: width 0.3s;
+            width: 0%;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h1>White Cottage Floral Editor</h1>
+                <button class="publish-button" id="publishButton" onclick="publish()">
+                    Publish Site
+                </button>
+                <button class="reorder-button" id="reorderButton" onclick="openReorderModal()" style="margin-top: 10px; width: 100%; padding: 10px; background: #9b59b6; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">
+                    🔄 Reorder Portfolio
+                </button>
+                <button class="reset-button" id="resetButton" onclick="resetToProduction()" style="margin-top: 10px; width: 100%; padding: 10px; background: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">
+                    🔄 Reset to Production
+                </button>
+            </div>
+            <div class="changes-list" id="changesList">
+                <div class="no-changes" id="noChanges">
+                    <p>No changes yet</p>
+                    <p style="font-size: 11px; margin-top: 8px;">Click on elements in the preview to edit them</p>
+                </div>
+            </div>
+        </div>
+        <div class="editor-panel">
+            <div class="preview-side" style="width: 100%;">
+                <div class="preview-header">
+                    <h2>Live Preview - Click to Edit</h2>
+                    <div class="preview-controls">
+                        <button onclick="toggleMobileView()" id="mobileViewButton" title="Toggle mobile view">📱 Mobile</button>
+                        <button onclick="toggleEditMode()" id="editModeButton">✏️ Edit Mode</button>
+                        <button onclick="refreshPreview()">🔄 Refresh</button>
+                        <button onclick="openPreviewInNewTab()">🔗 Open</button>
+                    </div>
+                </div>
+                <div class="preview-content" id="previewContent">
+                    <div class="edit-mode-indicator" id="editModeIndicator">Edit Mode: Click elements to edit</div>
+                    <div class="editable-overlay" id="editableOverlay">
+                        <div class="editable-overlay-label" id="editableLabel"></div>
+                    </div>
+                    <div class="preview-loading" id="previewLoading">Loading preview...</div>
+                    <iframe id="previewFrame" class="preview-iframe" src="/api/preview"></iframe>
+                </div>
+            </div>
+        </div>
+        
+            <!-- HTML Editor Modal -->
+            <div id="htmlEditorModal" class="modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 10001; align-items: center; justify-content: center;">
+                <div class="modal-content" style="background: white; border-radius: 8px; padding: 30px; max-width: 900px; max-height: 90vh; overflow-y: auto; width: 90%; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h2 style="margin: 0;" id="htmlEditorTitle">Edit Section HTML</h2>
+                        <button onclick="closeHtmlEditor()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #666;">×</button>
+                    </div>
+                    <p style="color: #666; margin-bottom: 20px; font-size: 14px;">Edit the HTML for this section. Changes will be saved as custom HTML.</p>
+                    <textarea id="htmlEditorTextarea" style="width: 100%; height: 500px; font-family: 'Courier New', monospace; font-size: 13px; padding: 15px; border: 1px solid #ddd; border-radius: 4px; resize: vertical; tab-size: 2;"></textarea>
+                    <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
+                        <button onclick="closeHtmlEditor()" style="padding: 10px 20px; background: #95a5a6; color: white; border: none; border-radius: 4px; cursor: pointer;">Cancel</button>
+                        <button onclick="saveHtmlEditor()" style="padding: 10px 20px; background: #27ae60; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">Save HTML</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Reorder Portfolio Modal -->
+            <div id="reorderModal" class="modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 10000; align-items: center; justify-content: center;">
+            <div class="modal-content" style="background: white; border-radius: 8px; padding: 30px; max-width: 600px; max-height: 80vh; overflow-y: auto; width: 90%; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="margin: 0;">Reorder Portfolio Images</h2>
+                    <button onclick="closeReorderModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #666;">×</button>
+                </div>
+                <p style="color: #666; margin-bottom: 20px; font-size: 14px;">Drag and drop items to reorder them</p>
+                
+                <!-- Upload area -->
+                <div id="reorderUploadArea" style="
+                    border: 2px dashed #3498db;
+                    border-radius: 8px;
+                    padding: 30px;
+                    text-align: center;
+                    margin-bottom: 20px;
+                    background: #f8f9fa;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                " ondrop="handleReorderDrop(event)" ondragover="handleReorderDragOver(event)" ondragleave="handleReorderDragLeave(event)" onclick="document.getElementById('reorderFileInput').click()">
+                    <input type="file" id="reorderFileInput" multiple accept="image/*" style="display: none;" onchange="handleReorderFileSelect(event)">
+                    <div style="font-size: 48px; margin-bottom: 10px;">📷</div>
+                    <div style="font-weight: 600; color: #3498db; margin-bottom: 5px;">Click or drag images here to upload</div>
+                    <div style="font-size: 12px; color: #666;">Add new images to your portfolio</div>
+                </div>
+                
+                <ul id="reorderList" style="list-style: none; padding: 0; margin: 0;">
+                    <!-- Items will be populated here -->
+                </ul>
+                <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
+                    <button onclick="closeReorderModal()" style="padding: 10px 20px; background: #95a5a6; color: white; border: none; border-radius: 4px; cursor: pointer;">Cancel</button>
+                    <button onclick="saveReorder()" style="padding: 10px 20px; background: #27ae60; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">Save Order</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let siteData = {};
+        let originalData = {}; // Store original data.json values
+        let changes = [];
+        let editMode = false;
+        let previewFrame = null;
+        let currentSectionToScroll = null; // Track section to scroll to
+        let debounceTimer; // For debouncing preview refreshes
+        
+        // Element to data path mapping
+        const elementMapping = {
+            '.logo': 'site.logo',
+            '.hero-title': 'hero.title',
+            '.hero-subtitle': 'hero.subtitle',
+            '.hero-tagline': 'hero.tagline',
+            '.hero-specialty': 'hero.specialty',
+            '.hero-locations': 'hero.locations',
+            '.section-title': (el) => {
+                const section = el.closest('section');
+                if (section.id === 'about') return 'about.heading';
+                if (section.id === 'services') return 'services.heading';
+                if (section.classList.contains('experience-section')) return 'experience.title';
+                if (section.classList.contains('standards-section')) return 'standards.title';
+                if (section.classList.contains('portfolio-section')) return 'portfolio.title';
+                if (section.classList.contains('contact-section')) return 'contact.title';
+                return null;
+            },
+            '.experience-text': 'experience.text',
+            '.testimonial-quote': 'testimonial.quote',
+            '.testimonial-author': 'testimonial.author',
+            '.about-text p': (el, index) => {
+                const texts = el.parentElement.querySelectorAll('.about-text p');
+                if (index === 0) return 'about.intro';
+                if (index === 1) return 'about.text';
+                return null;
+            },
+            '.service-item h4': (el, index) => `services.items[${index}].title`,
+            '.service-item p': (el, index) => `services.items[${index}].description`,
+            '.standards-list li': (el) => {
+                const index = Array.from(el.parentElement.children).indexOf(el);
+                return `standards.items[${index}]`;
+            },
+            '.location-text h3': (el, index) => {
+                if (index === 0) return 'location.heading1';
+                if (index === 1) return 'location.heading2';
+                return null;
+            },
+            '.location-list p': 'location.places',
+            '.contact-label': 'contact.label',
+            '.contact-info p': 'contact.description'
+        };
+
+        // Load original data.json
+        async function loadOriginalData() {
+            try {
+                const response = await fetch('/api/data/original');
+                if (!response.ok) throw new Error('Failed to load original data');
+                originalData = await response.json();
+                console.log('Original data loaded');
+            } catch (error) {
+                console.error('Error loading original data:', error);
+            }
+        }
+        
+        // Clean up any "(not set)" customHtml values
+        function cleanupCustomHtml(data) {
+            if (!data || typeof data !== 'object') return false;
+            
+            let cleaned = false;
+            const sections = ['hero', 'experience', 'testimonial', 'about', 'services', 'portfolio', 'standards', 'location', 'contact'];
+            sections.forEach(section => {
+                if (data[section] && data[section].customHtml === '(not set)') {
+                    delete data[section].customHtml;
+                    cleaned = true;
+                    console.log(`Cleaned up "(not set)" customHtml from ${section}`);
+                }
+            });
+            return cleaned;
+        }
+        
+        // Load data on page load
+        async function loadData() {
+            try {
+                // Load original data first
+                await loadOriginalData();
+                
+                // Then load preview data
+                const response = await fetch('/api/data');
+                if (!response.ok) throw new Error('Failed to load data');
+                siteData = await response.json();
+                
+                // Clean up any "(not set)" values
+                const wasCleaned = cleanupCustomHtml(siteData);
+                
+                // If we cleaned anything up, save it
+                if (wasCleaned) {
+                    await saveData();
+                }
+                
+                renderChanges();
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+
+        // Render section list
+        function renderSectionList() {
+            const contentSections = document.getElementById('contentSections');
+            const sections = Object.keys(siteData).filter(key => key !== 'config');
+            
+            contentSections.innerHTML = sections.map(section => {
+                const sectionData = siteData[section];
+                const preview = typeof sectionData === 'object' && !Array.isArray(sectionData)
+                    ? Object.keys(sectionData).slice(0, 2).map(k => {
+                        const val = sectionData[k];
+                        return typeof val === 'string' ? val.substring(0, 30) : k;
+                    }).join(', ')
+                    : 'Section data';
+                
+                return `
+                    <div class="section-item" onclick="selectSection('${section}')">
+                        <h3>${section.charAt(0).toUpperCase() + section.slice(1)}</h3>
+                        <p>${preview}...</p>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Select section
+        function selectSection(section) {
+            // Hide photo viewer and show editor panel
+            document.getElementById('photoViewer').style.display = 'none';
+            document.querySelector('.editor-panel').style.display = 'flex';
+            
+            currentSection = section;
+            
+            // Update active state
+            document.querySelectorAll('.section-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            if (event && event.target) {
+                event.target.closest('.section-item')?.classList.add('active');
+            }
+            
+            // Update header
+            document.getElementById('currentSection').textContent = 
+                section.charAt(0).toUpperCase() + section.slice(1);
+            
+            // Render editor
+            renderEditor(section);
+        }
+
+        // Render editor for section
+        function renderEditor(section) {
+            const editorContent = document.getElementById('editorContent');
+            const sectionData = siteData[section];
+            
+            if (!sectionData) {
+                editorContent.innerHTML = '<div class="error">Section not found</div>';
+                return;
+            }
+
+            editorContent.innerHTML = renderFormFields(section, sectionData, section);
+        }
+
+        // Recursively render form fields
+        function renderFormFields(key, value, path, isNested = false) {
+            if (value === null || value === undefined) {
+                return `<div class="form-group">
+                    <label>${key}</label>
+                    <input type="text" value="" onchange="updateValue('${path}', this.value, 'string')">
+                </div>`;
+            }
+
+            if (typeof value === 'string') {
+                const isMultiline = value.includes('\n') || value.length > 100;
+                return `<div class="form-group ${isNested ? 'nested-object' : ''}">
+                    <label>${key}</label>
+                    ${isMultiline 
+                        ? `<textarea oninput="updateValue('${path}', this.value, 'string')" onchange="updateValue('${path}', this.value, 'string')">${escapeHtml(value)}</textarea>`
+                        : `<input type="text" value="${escapeHtml(value)}" oninput="updateValue('${path}', this.value, 'string')" onchange="updateValue('${path}', this.value, 'string')">`
+                    }
+                </div>`;
+            }
+
+            if (typeof value === 'number') {
+                return `<div class="form-group ${isNested ? 'nested-object' : ''}">
+                    <label>${key}</label>
+                    <input type="number" value="${value}" oninput="updateValue('${path}', parseFloat(this.value) || 0, 'number')" onchange="updateValue('${path}', parseFloat(this.value) || 0, 'number')">
+                </div>`;
+            }
+
+            if (typeof value === 'boolean') {
+                return `<div class="form-group ${isNested ? 'nested-object' : ''}">
+                    <label>${key}</label>
+                    <input type="checkbox" ${value ? 'checked' : ''} onchange="updateValue('${path}', this.checked, 'boolean')">
+                </div>`;
+            }
+
+            if (Array.isArray(value)) {
+                const items = value.map((item, index) => {
+                    if (typeof item === 'string') {
+                        return `<div class="array-item">
+                            <div class="array-item-header">
+                                <h4>Item ${index + 1}</h4>
+                                <button class="remove-button" onclick="removeArrayItem('${path}', ${index})">Remove</button>
+                            </div>
+                            <input type="text" value="${escapeHtml(item)}" oninput="updateArrayItem('${path}', ${index}, this.value)" onchange="updateArrayItem('${path}', ${index}, this.value)">
+                        </div>`;
+                    } else {
+                        const fields = Object.keys(item).map(k => {
+                            const fieldValue = item[k];
+                            if (typeof fieldValue === 'string') {
+                                const isMultiline = fieldValue.includes('\n') || fieldValue.length > 100;
+                                return `<div class="form-group nested-object">
+                                    <label>${k}</label>
+                                    ${isMultiline 
+                                        ? `<textarea oninput="updateArrayItem('${path}', ${index}, this.value, '${k}')" onchange="updateArrayItem('${path}', ${index}, this.value, '${k}')">${escapeHtml(fieldValue)}</textarea>`
+                                        : `<input type="text" value="${escapeHtml(fieldValue)}" oninput="updateArrayItem('${path}', ${index}, this.value, '${k}')" onchange="updateArrayItem('${path}', ${index}, this.value, '${k}')">`
+                                    }
+                                </div>`;
+                            } else if (typeof fieldValue === 'number') {
+                                return `<div class="form-group nested-object">
+                                    <label>${k}</label>
+                                    <input type="number" value="${fieldValue}" oninput="updateArrayItem('${path}', ${index}, parseFloat(this.value) || 0, '${k}')" onchange="updateArrayItem('${path}', ${index}, parseFloat(this.value) || 0, '${k}')">
+                                </div>`;
+                            } else {
+                                return renderFormFields(k, fieldValue, `${path}[${index}].${k}`, true);
+                            }
+                        }).join('');
+                        return `<div class="array-item">
+                            <div class="array-item-header">
+                                <h4>Item ${index + 1}</h4>
+                                <button class="remove-button" onclick="removeArrayItem('${path}', ${index})">Remove</button>
+                            </div>
+                            ${fields}
+                        </div>`;
+                    }
+                }).join('');
+                
+                return `<div class="form-group ${isNested ? 'nested-object' : ''}">
+                    <label>${key}</label>
+                    ${items}
+                    <button class="add-button" onclick="addArrayItem('${path}')">Add Item</button>
+                </div>`;
+            }
+
+            if (typeof value === 'object') {
+                const fields = Object.keys(value).map(k => 
+                    renderFormFields(k, value[k], `${path}.${k}`, true)
+                ).join('');
+                return `<div class="form-group ${isNested ? 'nested-object' : ''}">
+                    <label><strong>${key}</strong></label>
+                    ${fields}
+                </div>`;
+            }
+
+            return '';
+        }
+
+        // Update value in data
+        function updateValue(path, value, type) {
+            const keys = path.split('.');
+            let current = siteData[currentSection];
+            
+            for (let i = 0; i < keys.length - 1; i++) {
+                if (!current[keys[i]]) current[keys[i]] = {};
+                current = current[keys[i]];
+            }
+            
+            const lastKey = keys[keys.length - 1];
+            if (type === 'number') {
+                current[lastKey] = parseFloat(value) || 0;
+            } else if (type === 'boolean') {
+                current[lastKey] = value;
+            } else {
+                current[lastKey] = value;
+            }
+            
+            // Save and update preview in real-time
+            saveData();
+        }
+
+        // Update array item
+        function updateArrayItem(path, index, value, field = null) {
+            const keys = path.split('.');
+            let current = siteData[currentSection];
+            
+            for (let i = 0; i < keys.length; i++) {
+                if (!current[keys[i]]) current[keys[i]] = [];
+                current = current[keys[i]];
+            }
+            
+            if (Array.isArray(current) && current[index] !== undefined) {
+                if (field && typeof current[index] === 'object') {
+                    // Update a specific field in an object array item
+                    current[index][field] = value;
+                } else {
+                    // Update the entire item (for string arrays)
+                    current[index] = value;
+                }
+            }
+            
+            saveData();
+        }
+
+        // Remove array item
+        function removeArrayItem(path, index) {
+            const keys = path.split('.');
+            let current = siteData[currentSection];
+            
+            for (let i = 0; i < keys.length; i++) {
+                current = current[keys[i]];
+            }
+            
+            if (Array.isArray(current)) {
+                current.splice(index, 1);
+                saveData();
+                renderEditor(currentSection);
+            }
+        }
+
+        // Add array item
+        function addArrayItem(path) {
+            const keys = path.split('.');
+            let current = siteData[currentSection];
+            
+            for (let i = 0; i < keys.length; i++) {
+                if (!current[keys[i]]) current[keys[i]] = [];
+                current = current[keys[i]];
+            }
+            
+            if (Array.isArray(current)) {
+                // Determine item type from existing items
+                if (current.length > 0 && typeof current[0] === 'object') {
+                    // Clone the structure of the first item
+                    const newItem = {};
+                    Object.keys(current[0]).forEach(k => {
+                        newItem[k] = '';
+                    });
+                    current.push(newItem);
+                } else {
+                    current.push('');
+                }
+                saveData();
+                renderEditor(currentSection);
+            }
+        }
+
+        // Save data to server and update preview
+        async function saveData() {
+            try {
+                console.log('Saving data to server...', siteData);
+                const response = await fetch('/api/data', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(siteData, null, 2)
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.details || 'Failed to save data');
+                }
+                
+                const result = await response.json();
+                console.log('Data saved successfully:', result);
+                return result;
+            } catch (error) {
+                console.error('Error saving data:', error);
+                alert('Error saving data: ' + error.message);
+                throw error;
+            }
+        }
+
+        // Publish site
+        async function publish() {
+            const button = document.getElementById('publishButton');
+            button.disabled = true;
+            button.textContent = 'Publishing...';
+            
+            try {
+                // Save current data first
+                await saveData();
+                
+                const response = await fetch('/api/publish', {
+                    method: 'POST'
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.details || 'Failed to publish');
+                }
+                
+                button.textContent = 'Published!';
+                setTimeout(() => {
+                    button.textContent = 'Publish Site';
+                    button.disabled = false;
+                }, 2000);
+            } catch (error) {
+                alert('Error publishing: ' + error.message);
+                button.textContent = 'Publish Site';
+                button.disabled = false;
+            }
+        }
+        
+        // Reset preview to match production
+        async function resetToProduction() {
+            // Confirm with user since this will discard all changes
+            if (!confirm('Are you sure you want to reset the preview to match production?\n\nThis will discard all unsaved changes and cannot be undone.')) {
+                return;
+            }
+            
+            const button = document.getElementById('resetButton');
+            const originalText = button.textContent;
+            button.disabled = true;
+            button.textContent = 'Resetting...';
+            
+            try {
+                const response = await fetch('/api/data/reset', {
+                    method: 'POST'
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.details || 'Failed to reset');
+                }
+                
+                // Clear changes list
+                changes = [];
+                renderChanges();
+                
+                // Reload data (both original and preview)
+                await loadOriginalData();
+                await loadData();
+                
+                // Reset section scroll
+                currentSectionToScroll = null;
+                
+                // Refresh preview
+                refreshPreview();
+                
+                button.textContent = 'Reset Complete!';
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.disabled = false;
+                }, 2000);
+            } catch (error) {
+                alert('Error resetting preview: ' + error.message);
+                button.textContent = originalText;
+                button.disabled = false;
+            }
+        }
+
+        // Refresh preview
+        function refreshPreview(sectionToScroll = null) {
+            const iframe = document.getElementById('previewFrame');
+            const loading = document.getElementById('previewLoading');
+            const wasEditMode = editMode;
+            
+            // Store section to scroll to
+            if (sectionToScroll) {
+                currentSectionToScroll = sectionToScroll;
+            }
+            
+            loading.style.display = 'block';
+            iframe.style.display = 'none';
+            
+            // Build preview URL with section hash if specified
+            let previewUrl = '/api/preview?t=' + Date.now() + '&edit=true';
+            if (currentSectionToScroll) {
+                // Map section names to section IDs/selectors for URL hash
+                const sectionHashMap = {
+                    'portfolio': 'portfolio',
+                    'about': 'about',
+                    'services': 'services',
+                    'contact': 'contact',
+                    'hero': 'home',
+                    'home': 'home',
+                    'experience': 'experience',
+                    'testimonial': 'testimonial',
+                    'standards': 'standards',
+                    'location': 'location'
+                };
+                
+                const hash = sectionHashMap[currentSectionToScroll] || currentSectionToScroll;
+                previewUrl += '#' + hash;
+            }
+            
+            // Always load with edit mode script available
+            iframe.src = previewUrl;
+            
+            iframe.onload = () => {
+                loading.style.display = 'none';
+                iframe.style.display = 'block';
+                previewFrame = iframe;
+                
+                if (wasEditMode) {
+                    setTimeout(() => {
+                        enableEditMode();
+                    }, 300);
+                }
+            };
+        }
+        
+        // Scroll to a section in the preview (kept for compatibility, but now uses URL hash)
+        function scrollToSection(sectionName) {
+            // Update the iframe src with hash to load directly at that section
+            if (previewFrame) {
+                currentSectionToScroll = sectionName;
+                refreshPreview();
+            }
+        }
+        
+        // Extract section name from data path
+        function getSectionFromPath(path) {
+            if (!path) return null;
+            const parts = path.split('.');
+            const section = parts[0];
+            
+            // Map data paths to section names
+            const sectionMap = {
+                'site': 'home',
+                'hero': 'home',
+                'portfolio': 'portfolio',
+                'about': 'about',
+                'services': 'services',
+                'contact': 'contact',
+                'experience': 'experience',
+                'testimonial': 'testimonial',
+                'standards': 'standards',
+                'location': 'location'
+            };
+            
+            return sectionMap[section] || section;
+        }
+
+        // Open preview in new tab
+        function openPreviewInNewTab() {
+            window.open('/api/preview', '_blank');
+        }
+
+        // Update preview in real-time (debounced)
+        let previewUpdateTimeout;
+        function updatePreview() {
+            clearTimeout(previewUpdateTimeout);
+            previewUpdateTimeout = setTimeout(() => {
+                refreshPreview();
+            }, 500); // Wait 500ms after last change
+        }
+
+        // Escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Handle image upload from preview
+        async function handleImageUploadFromPreview(data) {
+            try {
+                // Upload image to photos container
+                const response = await fetch('/api/photos/upload', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        file: data.file,
+                        filename: data.filename
+                    })
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.details || 'Upload failed');
+                }
+                
+                const result = await response.json();
+                
+                // Update data path with new image filename
+                const match = data.path.match(/portfolio\.images\[(\d+)\]\.src/);
+                if (match) {
+                    const index = parseInt(match[1]);
+                    const oldValue = siteData.portfolio.images[index].src;
+                    siteData.portfolio.images[index].src = data.filename;
+                    addChange(data.path, data.filename, oldValue);
+                    currentSectionToScroll = 'portfolio'; // Scroll to portfolio
+                    saveData();
+                    setTimeout(() => refreshPreview(), 300);
+                } else {
+                    // For other images (hero, about)
+                    const section = getSectionFromPath(data.path);
+                    if (section) {
+                        currentSectionToScroll = section;
+                    }
+                    updateDataPath(data.path, data.filename, siteData[data.path.split('.')[0]]?.image?.src || '');
+                }
+            } catch (error) {
+                console.error('Error uploading image:', error);
+                alert('Error uploading image: ' + error.message);
+            }
+        }
+        
+        function setupDragAndDrop() {
+            const uploadArea = document.getElementById('uploadArea');
+            
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, () => {
+                    uploadArea.classList.add('dragover');
+                }, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, () => {
+                    uploadArea.classList.remove('dragover');
+                }, false);
+            });
+
+            uploadArea.addEventListener('drop', handleDrop, false);
+        }
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+        }
+
+        function handleFileSelect(e) {
+            const files = e.target.files;
+            handleFiles(files);
+        }
+
+        async function handleFiles(files) {
+            const fileArray = Array.from(files);
+            const imageFiles = fileArray.filter(file => file.type.startsWith('image/'));
+            
+            if (imageFiles.length === 0) {
+                alert('Please select image files only');
+                return;
+            }
+
+            const progressBar = document.getElementById('uploadProgress');
+            const progressFill = document.getElementById('uploadProgressFill');
+            progressBar.classList.add('active');
+
+            for (let i = 0; i < imageFiles.length; i++) {
+                const file = imageFiles[i];
+                const progress = ((i + 1) / imageFiles.length) * 100;
+                progressFill.style.width = progress + '%';
+                
+                await uploadPhoto(file);
+            }
+
+            progressBar.classList.remove('active');
+            progressFill.style.width = '0%';
+            
+            // Reload photos
+            await loadPhotos();
+        }
+
+        async function uploadPhoto(file) {
+            try {
+                // Convert file to base64
+                const base64 = await fileToBase64(file);
+                
+                const response = await fetch('/api/photos/upload', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        file: base64,
+                        filename: file.name
+                    })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.details || 'Upload failed');
+                }
+
+                return await response.json();
+            } catch (error) {
+                console.error('Error uploading photo:', error);
+                alert(`Error uploading ${file.name}: ${error.message}`);
+                throw error;
+            }
+        }
+
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        async function loadPhotos() {
+            const grid = document.getElementById('photosGrid');
+            grid.innerHTML = '<div class="photo-loading">Loading photos...</div>';
+            
+            try {
+                const response = await fetch('/api/photos');
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({ details: 'Unknown error' }));
+                    throw new Error(errorData.details || errorData.error || 'Failed to load photos');
+                }
+                const photos = await response.json();
+                console.log('Loaded photos:', photos);
+                renderPhotos(photos);
+            } catch (error) {
+                console.error('Error loading photos:', error);
+                grid.innerHTML = 
+                    `<div class="error">Error loading photos: ${error.message}<br><small>Check console for details</small></div>`;
+            }
+        }
+
+        function renderPhotos(photos) {
+            const grid = document.getElementById('photosGrid');
+            
+            console.log('Rendering photos:', photos);
+            console.log('Number of photos:', photos ? photos.length : 'null/undefined');
+            
+            if (!photos || !Array.isArray(photos)) {
+                grid.className = 'photos-grid';
+                grid.innerHTML = '<div class="error">Invalid photos data received. Check console for details.</div>';
+                return;
+            }
+            
+            if (photos.length === 0) {
+                grid.className = 'photos-grid';
+                grid.innerHTML = '<div class="photo-loading">No photos found. Upload some images to get started!</div>';
+                return;
+            }
+
+            grid.className = 'photos-grid has-photos';
+            
+            // Clear and rebuild
+            grid.innerHTML = '';
+            
+            photos.forEach((photo, index) => {
+                if (!photo || !photo.url || !photo.name) {
+                    console.warn('Invalid photo object:', photo);
+                    return;
+                }
+                
+                const photoItem = document.createElement('div');
+                photoItem.className = 'photo-item';
+                
+                const img = document.createElement('img');
+                img.src = photo.url;
+                img.alt = photo.name;
+                img.loading = 'lazy';
+                img.onload = () => {
+                    console.log(`Image ${index + 1} loaded: ${photo.name}`);
+                };
+                img.onerror = (e) => {
+                    console.error(`Failed to load image: ${photo.name} from ${photo.url}`);
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'error';
+                    errorDiv.style.padding = '10px';
+                    errorDiv.textContent = `Failed to load: ${photo.name}`;
+                    photoItem.replaceChild(errorDiv, img);
+                };
+                
+                const infoDiv = document.createElement('div');
+                infoDiv.className = 'photo-item-info';
+                
+                const nameDiv = document.createElement('div');
+                nameDiv.className = 'photo-item-name';
+                nameDiv.textContent = photo.name;
+                nameDiv.title = photo.name;
+                
+                const actionsDiv = document.createElement('div');
+                actionsDiv.className = 'photo-item-actions';
+                
+                const copyBtn = document.createElement('button');
+                copyBtn.className = 'copy-button';
+                copyBtn.textContent = 'Copy URL';
+                copyBtn.onclick = () => copyPhotoUrl(photo.url);
+                
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'delete-button';
+                deleteBtn.textContent = 'Delete';
+                deleteBtn.onclick = () => deletePhoto(photo.name);
+                
+                actionsDiv.appendChild(copyBtn);
+                actionsDiv.appendChild(deleteBtn);
+                
+                infoDiv.appendChild(nameDiv);
+                infoDiv.appendChild(actionsDiv);
+                
+                photoItem.appendChild(img);
+                photoItem.appendChild(infoDiv);
+                
+                grid.appendChild(photoItem);
+            });
+            
+            console.log(`Rendered ${grid.children.length} photo items`);
+            
+            // Debug: Check if images are in DOM
+            setTimeout(() => {
+                const images = grid.querySelectorAll('img');
+                console.log(`Found ${images.length} img elements in DOM`);
+                images.forEach((img, i) => {
+                    console.log(`Image ${i + 1}: src="${img.src}", complete=${img.complete}, naturalWidth=${img.naturalWidth}`);
+                });
+            }, 1000);
+        }
+
+        async function deletePhoto(filename) {
+            if (!confirm(`Are you sure you want to delete "${filename}"?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/photos/${encodeURIComponent(filename)}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.details || 'Delete failed');
+                }
+
+                // Reload photos
+                await loadPhotos();
+            } catch (error) {
+                console.error('Error deleting photo:', error);
+                alert(`Error deleting photo: ${error.message}`);
+            }
+        }
+
+        function copyPhotoUrl(url) {
+            navigator.clipboard.writeText(url).then(() => {
+                alert('Photo URL copied to clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                // Fallback for older browsers
+                const textarea = document.createElement('textarea');
+                textarea.value = url;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert('Photo URL copied to clipboard!');
+            });
+        }
+
+        // Initialize preview when iframe loads
+        document.getElementById('previewFrame').onload = () => {
+            document.getElementById('previewLoading').style.display = 'none';
+            previewFrame = document.getElementById('previewFrame');
+            
+            // Scroll to section if one was set
+            if (currentSectionToScroll) {
+                setTimeout(() => {
+                    scrollToSection(currentSectionToScroll);
+                }, 500);
+            }
+            
+            // Always load with edit mode script, but only enable if toggle is on
+            if (editMode) {
+                setTimeout(() => {
+                    enableEditMode();
+                }, 300);
+            }
+        };
+        
+        // Check for section in URL hash on page load
+        window.addEventListener('load', () => {
+            const hash = window.location.hash;
+            if (hash) {
+                const section = hash.replace('#', '');
+                currentSectionToScroll = section;
+                // Refresh preview with hash to load directly at that section
+                setTimeout(() => {
+                    refreshPreview();
+                }, 500);
+            }
+        });
+
+        let mobileView = false;
+        
+        // Toggle mobile view
+        function toggleMobileView() {
+            mobileView = !mobileView;
+            const button = document.getElementById('mobileViewButton');
+            const previewContent = document.getElementById('previewContent');
+            
+            if (mobileView) {
+                button.textContent = '🖥️ Desktop';
+                button.style.background = '#9b59b6';
+                previewContent.classList.add('mobile-view');
+            } else {
+                button.textContent = '📱 Mobile';
+                button.style.background = '';
+                previewContent.classList.remove('mobile-view');
+            }
+        }
+        
+        // Toggle edit mode
+        function toggleEditMode() {
+            editMode = !editMode;
+            const button = document.getElementById('editModeButton');
+            const indicator = document.getElementById('editModeIndicator');
+            
+            if (editMode) {
+                button.textContent = '✅ Edit Mode ON';
+                button.style.background = '#27ae60';
+                indicator.classList.add('active');
+                
+                // Make sure preview is loaded with edit script
+                if (!previewFrame || !previewFrame.contentWindow) {
+                    refreshPreview();
+                } else {
+                    enableEditMode();
+                }
+            } else {
+                button.textContent = '✏️ Edit Mode';
+                button.style.background = '#3498db';
+                indicator.classList.remove('active');
+                disableEditMode();
+            }
+        }
+
+        // Enable edit mode in iframe
+        function enableEditMode() {
+            if (!previewFrame || !previewFrame.contentWindow) {
+                console.log('Preview frame not ready');
+                return;
+            }
+            
+            console.log('Sending enable edit mode message');
+            try {
+                // Send message to iframe to enable edit mode
+                previewFrame.contentWindow.postMessage({
+                    type: 'toggleEditMode',
+                    enabled: true
+                }, '*');
+            } catch(err) {
+                console.error('Error sending message to iframe:', err);
+            }
+        }
+
+        // Disable edit mode
+        function disableEditMode() {
+            if (!previewFrame) return;
+            
+            // Send message to iframe to disable edit mode
+            previewFrame.contentWindow.postMessage({
+                type: 'toggleEditMode',
+                enabled: false
+            }, '*');
+        }
+        
+        // HTML Editor state
+        let currentHtmlSectionPath = null;
+        
+        // Open HTML editor
+        function openHtmlEditor(sectionPath, html) {
+            currentHtmlSectionPath = sectionPath;
+            document.getElementById('htmlEditorTitle').textContent = `Edit HTML: ${sectionPath}`;
+            document.getElementById('htmlEditorTextarea').value = html;
+            document.getElementById('htmlEditorModal').style.display = 'flex';
+            // Focus textarea
+            setTimeout(() => {
+                document.getElementById('htmlEditorTextarea').focus();
+            }, 100);
+        }
+        
+        // Close HTML editor
+        function closeHtmlEditor() {
+            document.getElementById('htmlEditorModal').style.display = 'none';
+            currentHtmlSectionPath = null;
+        }
+        
+        // Save HTML editor
+        async function saveHtmlEditor() {
+            if (!currentHtmlSectionPath) return;
+            
+            const html = document.getElementById('htmlEditorTextarea').value;
+            
+            try {
+                // Save custom HTML to data structure
+                const keys = currentHtmlSectionPath.split('.');
+                let current = siteData;
+                
+                // Navigate to the section
+                for (let i = 0; i < keys.length; i++) {
+                    if (!current[keys[i]]) {
+                        current[keys[i]] = {};
+                    }
+                    if (i === keys.length - 1) {
+                        // Last key - set customHtml
+                        current[keys[i]].customHtml = html;
+                    } else {
+                        current = current[keys[i]];
+                    }
+                }
+                
+                // Get original value for change log
+                let originalValue = getValue(originalData, currentHtmlSectionPath + '.customHtml');
+                // Store undefined as undefined, not as string '(not set)'
+                // The change log will display it as '(not set)' but store it as undefined
+                
+                // Add to change log (store undefined, but display as '(not set)')
+                addChange(currentHtmlSectionPath + '.customHtml', html, originalValue, originalValue);
+                
+                // Save data
+                await saveData();
+                
+                // Close modal and refresh preview
+                closeHtmlEditor();
+                refreshPreview();
+            } catch (error) {
+                console.error('Error saving HTML:', error);
+                alert('Error saving HTML: ' + error.message);
+            }
+        }
+        
+        // Helper function to get nested value
+        function getValue(obj, path) {
+            return path.split('.').reduce((current, prop) => current && current[prop], obj);
+        }
+        
+        // Handle Escape key in HTML editor
+        document.addEventListener('keydown', (e) => {
+            const modal = document.getElementById('htmlEditorModal');
+            if (modal && modal.style.display === 'flex') {
+                if (e.key === 'Escape') {
+                    closeHtmlEditor();
+                } else if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                    e.preventDefault();
+                    saveHtmlEditor();
+                }
+            }
+        });
+        
+        // Listen for edit messages from iframe
+        window.addEventListener('message', (e) => {
+            if (e.data.type === 'editSectionHtml') {
+                openHtmlEditor(e.data.sectionPath, e.data.html);
+                return;
+            }
+            
+            console.log('Received message:', e.data);
+            if (e.data.type === 'elementEdited') {
+                console.log('Element edited:', e.data);
+                updateDataPath(e.data.path, e.data.newValue, e.data.oldValue);
+                // Refresh preview after a short delay
+                setTimeout(() => refreshPreview(), 300);
+            } else if (e.data.type === 'imageUpload') {
+                handleImageUploadFromPreview(e.data);
+            } else if (e.data.type === 'deletePortfolioImage') {
+                console.log('Received delete message for index:', e.data.index, 'filename:', e.data.filename);
+                deletePortfolioImage(e.data.index, e.data.filename);
+            } else if (e.data.type === 'addPortfolioImage') {
+                handleAddPortfolioImage(e.data);
+            } else if (e.data.type === 'reorderPortfolio') {
+                handleReorderPortfolio(e.data.fromIndex, e.data.toIndex);
+            }
+        });
+        
+        // Handle image upload from preview
+        async function handleImageUploadFromPreview(data) {
+            try {
+                // Upload image to photos container
+                const response = await fetch('/api/photos/upload', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        file: data.file,
+                        filename: data.filename
+                    })
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.details || 'Upload failed');
+                }
+                
+                const result = await response.json();
+                
+                // Update data path with new image filename
+                const imagePath = data.path.replace(/portfolio\.images\[\d+\]\.src/, '');
+                const match = data.path.match(/portfolio\.images\[(\d+)\]\.src/);
+                if (match) {
+                    const index = parseInt(match[1]);
+                    const oldValue = siteData.portfolio.images[index].src;
+                    siteData.portfolio.images[index].src = data.filename;
+                    addChange(data.path, data.filename, oldValue);
+                    saveData();
+                    setTimeout(() => refreshPreview(), 300);
+                } else {
+                    // For other images (hero, about)
+                    updateDataPath(data.path, data.filename, siteData[data.path.split('.')[0]]?.image?.src || '');
+                    currentSectionToScroll = data.path.split('.')[0]; // Scroll to the section
+                    setTimeout(() => refreshPreview(), 300);
+                }
+            } catch (error) {
+                console.error('Error uploading image:', error);
+                alert('Error uploading image: ' + error.message);
+            }
+        }
+        
+        // Delete portfolio image
+        async function deletePortfolioImage(index, filename) {
+            console.log('Deleting portfolio image at index:', index, 'filename:', filename);
+            console.log('Current portfolio images:', siteData.portfolio?.images);
+            
+            if (!siteData.portfolio || !siteData.portfolio.images) {
+                console.error('Portfolio or images array not found');
+                alert('Portfolio not found');
+                return;
+            }
+            
+            // Find the image by filename or index
+            let imageToDelete = null;
+            let actualIndex = -1;
+            
+            // Log for debugging
+            console.log('Searching for image. Index:', index, 'Filename:', filename);
+            console.log('Portfolio images array length:', siteData.portfolio.images.length);
+            console.log('Portfolio images:', siteData.portfolio.images.map((img, i) => ({ index: i, src: img.src })));
+            
+            // First, try using the provided index if it's valid
+            if (index >= 0 && index < siteData.portfolio.images.length) {
+                actualIndex = index;
+                imageToDelete = siteData.portfolio.images[actualIndex];
+                console.log('Using provided index:', actualIndex, 'src:', imageToDelete?.src);
+                
+                // Verify the filename matches if provided
+                if (filename && imageToDelete) {
+                    const imgSrc = imageToDelete.src || '';
+                    const imgFilename = imgSrc.includes('/') ? imgSrc.split('/').pop() : imgSrc;
+                    const searchFilename = filename.includes('/') ? filename.split('/').pop() : filename;
+                    if (imgFilename !== searchFilename && imgSrc !== filename && !imgSrc.endsWith(filename) && imgFilename !== filename) {
+                        console.warn('Index found but filename mismatch. Searching by filename...');
+                        imageToDelete = null;
+                        actualIndex = -1;
+                    }
+                }
+            }
+            
+            // If index didn't work or filename doesn't match, search by filename
+            if (!imageToDelete && filename) {
+                actualIndex = siteData.portfolio.images.findIndex(img => {
+                    const imgSrc = img.src || '';
+                    // Compare filenames (handle both full URLs and just filenames)
+                    const imgFilename = imgSrc.includes('/') ? imgSrc.split('/').pop() : imgSrc;
+                    const searchFilename = filename.includes('/') ? filename.split('/').pop() : filename;
+                    return imgFilename === searchFilename || imgSrc === filename || imgSrc.endsWith(filename) || imgFilename === filename;
+                });
+                
+                if (actualIndex >= 0) {
+                    imageToDelete = siteData.portfolio.images[actualIndex];
+                    console.log('Found image by filename at index:', actualIndex, 'src:', imageToDelete.src);
+                } else {
+                    console.log('Filename search failed');
+                }
+            }
+            
+            if (!imageToDelete || actualIndex < 0) {
+                console.error('Image not found. Index:', index, 'Filename:', filename);
+                console.error('Available images:', siteData.portfolio.images.map((img, i) => `[${i}] ${img.src}`));
+                alert('Image not found in portfolio. Check console for details.');
+                return;
+            }
+            
+            const imageFilename = imageToDelete.src;
+            const oldValue = imageFilename;
+            
+            try {
+                // Delete image from Azure Storage
+                console.log('Deleting image from storage:', imageFilename);
+                const deleteResponse = await fetch(`/api/photos/${encodeURIComponent(imageFilename)}`, {
+                    method: 'DELETE'
+                });
+                
+                if (!deleteResponse.ok) {
+                    const error = await deleteResponse.json();
+                    console.warn('Failed to delete image from storage:', error);
+                    // Continue anyway - remove from array even if storage delete fails
+                } else {
+                    console.log('Image deleted from storage successfully');
+                }
+                
+                // Remove from portfolio array using the actual index found
+                siteData.portfolio.images.splice(actualIndex, 1);
+                
+                console.log('Image deleted from array at index:', actualIndex, 'new array length:', siteData.portfolio.images.length);
+                console.log('Updated portfolio images:', siteData.portfolio.images);
+                
+                addChange(`portfolio.images[${actualIndex}]`, '(deleted)', oldValue);
+                currentSectionToScroll = 'portfolio'; // Scroll to portfolio
+                
+                // Save data and wait for it to complete
+                await saveData();
+                console.log('Data saved successfully');
+                
+                // Reload data from server to ensure we have the latest
+                await loadData();
+                console.log('Data reloaded from server');
+                
+                // Refresh preview after a short delay to ensure data is saved
+                setTimeout(() => {
+                    refreshPreview();
+                }, 500);
+            } catch (error) {
+                console.error('Error deleting portfolio image:', error);
+                alert('Error deleting image: ' + error.message);
+            }
+        }
+        
+        // Add new portfolio image
+        async function handleAddPortfolioImage(data) {
+            try {
+                // Upload image to photos container
+                const response = await fetch('/api/photos/upload', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        file: data.file,
+                        filename: data.filename
+                    })
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.details || 'Upload failed');
+                }
+                
+                // Ensure portfolio structure exists
+                if (!siteData.portfolio) {
+                    siteData.portfolio = { images: [] };
+                }
+                if (!siteData.portfolio.images) {
+                    siteData.portfolio.images = [];
+                }
+                
+                // Add new image to portfolio
+                const newImage = {
+                    src: data.filename,
+                    alt: 'Portfolio image'
+                };
+                
+                siteData.portfolio.images.push(newImage);
+                const newIndex = siteData.portfolio.images.length - 1;
+                
+                addChange(`portfolio.images[${newIndex}]`, data.filename, '(new)');
+                currentSectionToScroll = 'portfolio'; // Scroll to portfolio
+                saveData();
+                setTimeout(() => refreshPreview(), 300);
+            } catch (error) {
+                console.error('Error adding portfolio image:', error);
+                alert('Error adding image: ' + error.message);
+            }
+        }
+        
+        // Open reorder modal
+        function openReorderModal() {
+            if (!siteData.portfolio || !siteData.portfolio.images) {
+                alert('No portfolio images to reorder');
+                return;
+            }
+            
+            const modal = document.getElementById('reorderModal');
+            const list = document.getElementById('reorderList');
+            
+            // Populate list with current images
+            list.innerHTML = siteData.portfolio.images.map((img, index) => {
+                // Get image base path from config or use default
+                const imageBasePath = siteData.config?.image_base_path || '';
+                const imageUrl = imageBasePath + (imageBasePath && !imageBasePath.endsWith('/') ? '/' : '') + img.src;
+                return `
+                    <li data-original-index="${index}" data-index="${index}" draggable="true" style="
+                        display: flex;
+                        align-items: center;
+                        padding: 15px;
+                        margin-bottom: 10px;
+                        background: #f8f9fa;
+                        border: 2px solid #e9ecef;
+                        border-radius: 8px;
+                        cursor: move;
+                        transition: all 0.2s;
+                    ">
+                        <span style="margin-right: 15px; font-size: 20px; color: #6c757d;">☰</span>
+                        <img src="${imageUrl}" alt="${img.alt || ''}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 4px; margin-right: 15px;">
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600; margin-bottom: 5px;">${img.src}</div>
+                            <div style="font-size: 12px; color: #6c757d;">${img.alt || 'No alt text'}</div>
+                        </div>
+                        <span style="color: #6c757d; font-size: 14px;">#${index + 1}</span>
+                    </li>
+                `;
+            }).join('');
+            
+            // Setup drag and drop
+            let draggedElement = null;
+            const items = list.querySelectorAll('li');
+            
+            items.forEach((item, index) => {
+                item.addEventListener('dragstart', (e) => {
+                    draggedElement = item;
+                    item.style.opacity = '0.5';
+                    e.dataTransfer.effectAllowed = 'move';
+                });
+                
+                item.addEventListener('dragend', (e) => {
+                    item.style.opacity = '1';
+                    // Remove all drag-over classes
+                    items.forEach(i => {
+                        i.classList.remove('drag-over');
+                        i.style.borderTop = '';
+                    });
+                });
+                
+                item.addEventListener('dragover', (e) => {
+                    if (draggedElement && item !== draggedElement) {
+                        e.preventDefault();
+                        e.dataTransfer.dropEffect = 'move';
+                        
+                        // Remove drag-over from all items
+                        items.forEach(i => {
+                            i.classList.remove('drag-over');
+                            i.style.borderTop = '';
+                        });
+                        
+                        // Add visual indicator
+                        item.classList.add('drag-over');
+                        item.style.borderTop = '3px solid #3498db';
+                    }
+                });
+                
+                item.addEventListener('drop', (e) => {
+                    if (draggedElement && item !== draggedElement) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        // Reorder in DOM based on mouse position
+                        const rect = item.getBoundingClientRect();
+                        const midpoint = rect.top + rect.height / 2;
+                        const mouseY = e.clientY;
+                        
+                        if (mouseY < midpoint) {
+                            item.parentNode.insertBefore(draggedElement, item);
+                        } else {
+                            item.parentNode.insertBefore(draggedElement, item.nextSibling);
+                        }
+                        
+                        // Update display numbers (data-original-index stays the same for saving)
+                        const newItems = list.querySelectorAll('li');
+                        newItems.forEach((li, idx) => {
+                            const numSpan = li.querySelector('span:last-child');
+                            if (numSpan) {
+                                numSpan.textContent = `#${idx + 1}`;
+                            }
+                        });
+                    }
+                });
+            });
+            
+            modal.style.display = 'flex';
+        }
+        
+        // Handle drag over in reorder modal
+        function handleReorderDragOver(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const uploadArea = document.getElementById('reorderUploadArea');
+            uploadArea.style.background = '#e3f2fd';
+            uploadArea.style.borderColor = '#2196f3';
+        }
+        
+        // Handle drag leave in reorder modal
+        function handleReorderDragLeave(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const uploadArea = document.getElementById('reorderUploadArea');
+            uploadArea.style.background = '#f8f9fa';
+            uploadArea.style.borderColor = '#3498db';
+        }
+        
+        // Handle drop in reorder modal
+        function handleReorderDrop(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const uploadArea = document.getElementById('reorderUploadArea');
+            uploadArea.style.background = '#f8f9fa';
+            uploadArea.style.borderColor = '#3498db';
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleReorderFiles(Array.from(files));
+            }
+        }
+        
+        // Handle file select in reorder modal
+        function handleReorderFileSelect(e) {
+            const files = e.target.files;
+            if (files.length > 0) {
+                handleReorderFiles(Array.from(files));
+            }
+        }
+        
+        // Handle uploading files from reorder modal
+        async function handleReorderFiles(files) {
+            const imageFiles = files.filter(file => file.type.startsWith('image/'));
+            if (imageFiles.length === 0) {
+                alert('Please select image files only');
+                return;
+            }
+            
+            const uploadArea = document.getElementById('reorderUploadArea');
+            const originalText = uploadArea.innerHTML;
+            uploadArea.innerHTML = '<div style="color: #3498db;">Uploading ' + imageFiles.length + ' image(s)...</div>';
+            uploadArea.style.pointerEvents = 'none';
+            
+            try {
+                for (const file of imageFiles) {
+                    await uploadImageToPortfolio(file);
+                }
+                
+                // Reload data and refresh the modal
+                await loadData();
+                openReorderModal(); // Refresh the modal with new images
+                // Refresh preview to show new images
+                currentSectionToScroll = 'portfolio';
+                setTimeout(() => refreshPreview(), 300);
+            } catch (error) {
+                console.error('Error uploading images:', error);
+                alert('Error uploading images: ' + error.message);
+                uploadArea.innerHTML = originalText;
+            } finally {
+                uploadArea.style.pointerEvents = 'auto';
+            }
+        }
+        
+        // Upload a single image to portfolio
+        async function uploadImageToPortfolio(file) {
+            try {
+                // Convert file to base64
+                const base64 = await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(file);
+                });
+                
+                // Generate filename
+                const timestamp = Date.now();
+                const ext = file.name.split('.').pop();
+                const filename = 'portfolio_' + timestamp + '.' + ext;
+                
+                // Upload image to photos container
+                const response = await fetch('/api/photos/upload', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        file: base64,
+                        filename: filename
+                    })
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.details || 'Upload failed');
+                }
+                
+                // Add to portfolio images array
+                if (!siteData.portfolio) {
+                    siteData.portfolio = { images: [] };
+                }
+                if (!siteData.portfolio.images) {
+                    siteData.portfolio.images = [];
+                }
+                
+                const newImage = {
+                    src: filename,
+                    alt: 'Portfolio image'
+                };
+                
+                siteData.portfolio.images.push(newImage);
+                const newIndex = siteData.portfolio.images.length - 1;
+                
+                addChange(`portfolio.images[${newIndex}]`, filename, '(new)');
+                currentSectionToScroll = 'portfolio'; // Scroll to portfolio
+                await saveData();
+            } catch (error) {
+                console.error('Error uploading image:', error);
+                throw error;
+            }
+        }
+        
+        // Close reorder modal
+        function closeReorderModal() {
+            document.getElementById('reorderModal').style.display = 'none';
+        }
+        
+        // Save reordered portfolio
+        async function saveReorder() {
+            try {
+                const list = document.getElementById('reorderList');
+                const items = list.querySelectorAll('li');
+                const newOrder = [];
+                
+                // Build new order based on current DOM order
+                // Use original-index if available, otherwise use data-index
+                items.forEach(item => {
+                    const originalIndex = parseInt(item.getAttribute('data-original-index') || item.getAttribute('data-index'));
+                    if (originalIndex >= 0 && originalIndex < siteData.portfolio.images.length) {
+                        newOrder.push(siteData.portfolio.images[originalIndex]);
+                    }
+                });
+                
+                if (newOrder.length !== siteData.portfolio.images.length) {
+                    console.error('Reorder failed: length mismatch', newOrder.length, siteData.portfolio.images.length);
+                    alert('Error: Could not reorder images. Please try again.');
+                    return;
+                }
+                
+                // Update portfolio images array
+                const oldOrder = JSON.stringify(siteData.portfolio.images.map(img => img.src));
+                siteData.portfolio.images = newOrder;
+                const newOrderStr = JSON.stringify(siteData.portfolio.images.map(img => img.src));
+                
+                console.log('Reordering portfolio:', {
+                    oldOrder: oldOrder,
+                    newOrder: newOrderStr
+                });
+                
+                addChange('portfolio.images[reorder]', newOrderStr, oldOrder);
+                currentSectionToScroll = 'portfolio'; // Scroll to portfolio
+                
+                // Save data
+                await saveData();
+                console.log('Reorder saved successfully');
+                
+                // Reload data to ensure consistency
+                await loadData();
+                console.log('Data reloaded');
+                
+                // Close modal
+                closeReorderModal();
+                
+                // Refresh preview
+                setTimeout(() => {
+                    refreshPreview();
+                }, 500);
+            } catch (error) {
+                console.error('Error saving reorder:', error);
+                alert('Error saving reorder: ' + error.message);
+            }
+        }
+        
+        // Reorder portfolio images (legacy function, kept for compatibility)
+        async function handleReorderPortfolio(fromIndex, toIndex) {
+            try {
+                if (!siteData.portfolio || !siteData.portfolio.images) {
+                    console.error('Portfolio not found');
+                    return;
+                }
+                
+                if (fromIndex < 0 || fromIndex >= siteData.portfolio.images.length) {
+                    console.error('Invalid fromIndex:', fromIndex);
+                    return;
+                }
+                
+                if (toIndex < 0 || toIndex > siteData.portfolio.images.length) {
+                    console.error('Invalid toIndex:', toIndex);
+                    return;
+                }
+                
+                // Adjust toIndex if dragging forward
+                if (fromIndex < toIndex) {
+                    toIndex = toIndex - 1;
+                }
+                
+                if (fromIndex === toIndex) {
+                    return; // No change needed
+                }
+                
+                // Get the item being moved
+                const item = siteData.portfolio.images[fromIndex];
+                
+                // Remove from old position
+                siteData.portfolio.images.splice(fromIndex, 1);
+                
+                // Insert at new position
+                siteData.portfolio.images.splice(toIndex, 0, item);
+                
+                console.log('Portfolio reordered from', fromIndex, 'to', toIndex);
+                
+                addChange(`portfolio.images[reorder]`, `Moved from ${fromIndex} to ${toIndex}`, '');
+                await saveData();
+                
+                // Reload data and refresh preview
+                await loadData();
+                setTimeout(() => refreshPreview(), 300);
+            } catch (error) {
+                console.error('Error reordering portfolio:', error);
+                alert('Error reordering images: ' + error.message);
+            }
+        }
+
+        // Update data at a specific path
+        function updateDataPath(path, newValue, oldValue, skipChangeLog = false) {
+            const keys = path.split('.');
+            let current = siteData;
+            
+            // Handle array indices like "items[0]"
+            for (let i = 0; i < keys.length - 1; i++) {
+                let key = keys[i];
+                const arrayMatch = key.match(/^(.+)\[(\d+)\]$/);
+                
+                if (arrayMatch) {
+                    key = arrayMatch[1];
+                    const index = parseInt(arrayMatch[2]);
+                    if (!current[key]) current[key] = [];
+                    if (!current[key][index]) current[key][index] = {};
+                    current = current[key][index];
+                } else {
+                    if (!current[key]) current[key] = {};
+                    current = current[key];
+                }
+            }
+            
+            const lastKey = keys[keys.length - 1];
+            const arrayMatch = lastKey.match(/^(.+)\[(\d+)\]$/);
+            
+            if (arrayMatch) {
+                const key = arrayMatch[1];
+                const index = parseInt(arrayMatch[2]);
+                if (!current[key]) current[key] = [];
+                oldValue = current[key][index] || oldValue;
+                current[key][index] = newValue;
+            } else {
+                oldValue = current[lastKey] || oldValue;
+                current[lastKey] = newValue;
+            }
+            
+            // Track change
+            if (!skipChangeLog) {
+                addChange(path, newValue, oldValue);
+            }
+            
+            // Save data
+            saveData();
+        }
+        
+        // Helper to get value from object by path
+        function getValueByPath(obj, path) {
+            const keys = path.split('.');
+            let current = obj;
+            for (let i = 0; i < keys.length; i++) {
+                let key = keys[i];
+                // Handle array indices like "items[0]"
+                const arrayMatch = key.match(/^(.+)\[(\d+)\]$/);
+                if (arrayMatch) {
+                    key = arrayMatch[1];
+                    const index = parseInt(arrayMatch[2]);
+                    if (!current[key] || !Array.isArray(current[key])) return undefined;
+                    current = current[key][index];
+                } else {
+                    if (!current || typeof current !== 'object') return undefined;
+                    current = current[key];
+                }
+                if (current === undefined || current === null) return undefined;
+            }
+            return current;
+        }
+
+        // Add change to log
+        function addChange(path, newValue, oldValue) {
+            // Get original value from originalData if not provided
+            let originalValue = oldValue;
+            if (originalData && Object.keys(originalData).length > 0) {
+                const orig = getValueByPath(originalData, path);
+                if (orig !== undefined) {
+                    originalValue = typeof orig === 'object' ? JSON.stringify(orig) : String(orig);
+                }
+            }
+            
+            // Remove existing change for this path
+            changes = changes.filter(c => c.path !== path);
+            
+            // Add new change with original value
+            changes.unshift({
+                path: path,
+                newValue: newValue,
+                oldValue: oldValue, // Keep oldValue for reference (previous edit)
+                originalValue: originalValue, // Original from data.json
+                timestamp: new Date()
+            });
+            
+            // Limit to 50 changes
+            if (changes.length > 50) {
+                changes = changes.slice(0, 50);
+            }
+            
+            renderChanges();
+        }
+
+        // Render changes list
+        function renderChanges() {
+            const container = document.getElementById('changesList');
+            if (!container) {
+                console.warn('changesList container not found');
+                return;
+            }
+            
+            const noChanges = document.getElementById('noChanges');
+            
+            if (changes.length === 0) {
+                if (noChanges) {
+                    noChanges.style.display = 'block';
+                    container.innerHTML = '';
+                    container.appendChild(noChanges);
+                } else {
+                    container.innerHTML = '<div class="no-changes" id="noChanges"><p>No changes yet</p><p style="font-size: 11px; margin-top: 8px;">Click on elements in the preview to edit them</p></div>';
+                }
+                return;
+            }
+            
+            if (noChanges) {
+                noChanges.style.display = 'none';
+            }
+            container.innerHTML = changes.map((change, index) => {
+                const time = new Date(change.timestamp).toLocaleTimeString();
+                // Use originalValue if available, otherwise oldValue
+                let originalValue = change.originalValue !== undefined ? change.originalValue : change.oldValue;
+                // Handle "(not set)" string - treat as undefined for display
+                if (originalValue === '(not set)') {
+                    originalValue = undefined;
+                }
+                // Display original value (show "(not set)" if undefined)
+                const originalDisplay = originalValue !== undefined 
+                    ? escapeHtml(String(originalValue).substring(0, 100)) + (String(originalValue).length > 100 ? '...' : '')
+                    : '(not set)';
+                const newDisplay = escapeHtml(String(change.newValue).substring(0, 100)) + (String(change.newValue).length > 100 ? '...' : '');
+                
+                return `
+                    <div class="change-item" data-change-index="${index}">
+                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                            <div style="flex: 1;">
+                                <h4>Change ${changes.length - index}</h4>
+                                <div class="change-path">${change.path}</div>
+                                <div class="change-old"><s>${originalDisplay}</s></div>
+                                <div class="change-new">${newDisplay}</div>
+                                <div style="font-size: 10px; color: #95a5a6; margin-top: 4px;">${time}</div>
+                            </div>
+                            <button onclick="revertChange(${index})" style="
+                                background: #e74c3c;
+                                color: white;
+                                border: none;
+                                border-radius: 4px;
+                                padding: 6px 12px;
+                                cursor: pointer;
+                                font-size: 12px;
+                                margin-left: 10px;
+                            " title="Revert to original value">↩️ Revert</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // Revert a change to original value
+        async function revertChange(changeIndex) {
+            if (changeIndex < 0 || changeIndex >= changes.length) {
+                console.error('Invalid change index:', changeIndex);
+                return;
+            }
+            
+            const change = changes[changeIndex];
+            const path = change.path;
+            let originalValue = change.originalValue;
+            
+            // Handle "(not set)" string - treat it as undefined
+            if (originalValue === '(not set)' || originalValue === undefined) {
+                originalValue = undefined;
+            }
+            
+            if (originalValue === undefined) {
+                // Delete the property instead of setting it
+                try {
+                    const keys = path.split('.');
+                    let current = siteData;
+                    
+                    // Navigate to the parent of the property to delete
+                    for (let i = 0; i < keys.length - 1; i++) {
+                        let key = keys[i];
+                        const arrayMatch = key.match(/^(.+)\[(\d+)\]$/);
+                        
+                        if (arrayMatch) {
+                            key = arrayMatch[1];
+                            const index = parseInt(arrayMatch[2]);
+                            if (!current[key] || !current[key][index]) return;
+                            current = current[key][index];
+                        } else {
+                            if (!current[key]) return;
+                            current = current[key];
+                        }
+                    }
+                    
+                    // Delete the property
+                    const lastKey = keys[keys.length - 1];
+                    const arrayMatch = lastKey.match(/^(.+)\[(\d+)\]$/);
+                    
+                    if (arrayMatch) {
+                        const key = arrayMatch[1];
+                        const index = parseInt(arrayMatch[2]);
+                        if (current[key] && current[key][index] !== undefined) {
+                            delete current[key][index];
+                        }
+                    } else {
+                        if (current[lastKey] !== undefined) {
+                            delete current[lastKey];
+                        }
+                    }
+                    
+                    // Remove this change from the list
+                    changes.splice(changeIndex, 1);
+                    renderChanges();
+                    
+                    // Save and refresh
+                    await saveData();
+                    await loadData();
+                    setTimeout(() => refreshPreview(), 300);
+                    return;
+                } catch (error) {
+                    console.error('Error deleting property:', error);
+                    alert('Error reverting change: ' + error.message);
+                    return;
+                }
+            }
+            
+            try {
+                // Parse original value if it's JSON
+                let valueToRestore = originalValue;
+                try {
+                    valueToRestore = JSON.parse(originalValue);
+                } catch (e) {
+                    // Not JSON, use as string
+                }
+                
+                // Determine section from path
+                const section = getSectionFromPath(path);
+                if (section) {
+                    currentSectionToScroll = section;
+                }
+                
+                // Update the data path (skip change log to avoid creating a new change)
+                updateDataPath(path, valueToRestore, change.newValue, true);
+                
+                // Remove this change from the list
+                changes.splice(changeIndex, 1);
+                renderChanges();
+                
+                // Save and refresh
+                await saveData();
+                await loadData();
+                setTimeout(() => refreshPreview(), 300);
+            } catch (error) {
+                console.error('Error reverting change:', error);
+                alert('Error reverting change: ' + error.message);
+            }
+        }
+
+        // Initialize
+        loadData();
+    </script>
+</body>
+</html>
+
