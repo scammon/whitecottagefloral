@@ -1,0 +1,162 @@
+{
+  "site": {
+    "title": "White Cottage Floral Design",
+    "logo": "white cottage floral design"
+  },
+  "navigation": {
+    "home": "Home",
+    "about": "About",
+    "portfolio": "Portfolio",
+    "services": "Services",
+    "contact": "Contact"
+  },
+  "hero": {
+    "title": "white cottage<br>floral design",
+    "subtitle": "Connecticut",
+    "tagline": "meaningful floral arrangements for<br>discerning clients",
+    "specialty": "specializing in weddings, events<br>& private installations",
+    "locations": "",
+    "image": {
+      "src": "blob-15e0e02.png",
+      "alt": "Beautiful floral arrangement"
+    }
+  },
+  "experience": {
+    "title": "the<br><span class=\"large-text\">FLORAL</span><br>experience",
+    "text": "We are a premier floral design studio in Connecticut, committed to elevating life's most memorable moments. Whether it's a wedding, birthday, or simply a day you want to make extraordinary, our exquisite flowers are designed to transform your occasion into something unforgettable. Let us help you create the perfect atmosphere for every celebration.",
+    "cta": "explore our work"
+  },
+  "testimonial": {
+    "quote": "FROM THE MOMENT WE BEGAN WORKING SHE MADE ME<br>FEEL<br><span class=\"highlight\">seen, heard and at ease.</span>",
+    "author": "— amanda, bride"
+  },
+  "about": {
+    "label": "behind the founder",
+    "heading": "white cottage floral",
+    "image": {
+      "src": "IMG_1291.jpeg",
+      "alt": "Floral designer at work"
+    },
+    "intro": "Hi, I'm Susan.",
+    "text": "I started White Cottage Floral Design with a deep passion for bringing beauty and nature together. Having the trust to create the floral designs for your most important moments is such an honor and truly fuels my soul. When you hire me, you should know that I won't be satisfied until your floral arrangements are more beautiful than you could have even imagined."
+  },
+  "services": {
+    "label": "our offerings",
+    "heading": "weddings<br>& events",
+    "items": [
+      {
+        "title": "Romantic Bouquets",
+        "description": "Surprise your loved one with a romantic bouquet. Our expert florists will create a stunning bouquet that will take their breath away."
+      },
+      {
+        "title": "Wedding Flowers",
+        "description": "Make your wedding day unforgettable with beautiful flowers. We offer a wide range of wedding flower services, including bridal bouquets, centerpieces, and more."
+      },
+      {
+        "title": "Corporate Events",
+        "description": "Add a touch of elegance to your next corporate event with flowers. Our expert team will work with you to create a custom floral design that fits your brand and vision."
+      }
+    ],
+    "cta": "explore the portfolio"
+  },
+  "portfolio": {
+    "title": "Nature's colors: A gallery of blooms",
+    "images": [
+      {
+        "src": "RachelStevenWedding2024FinalsColor-15-a0aa259.jpeg",
+        "alt": "Bridal bouquet"
+      },
+      {
+        "src": "IMG_0210.jpeg",
+        "alt": "Wedding floral arrangement"
+      },
+      {
+        "src": "IMG_0166.jpeg",
+        "alt": "Ceremony arch"
+      },
+      {
+        "src": "image_b09a5869.jpg",
+        "alt": "Reception centerpiece"
+      },
+      {
+        "src": "image_fdc18967.jpg",
+        "alt": "Event installation"
+      },
+      {
+        "src": "IMG_3486.jpeg",
+        "alt": "Floral design"
+      },
+      {
+        "src": "IMG_4071.jpeg",
+        "alt": "Floral arrangement"
+      },
+      {
+        "src": "IMG_3551.jpeg",
+        "alt": "Wedding flowers"
+      },
+      {
+        "src": "image_b4845cb0.jpg",
+        "alt": "Floral design"
+      },
+      {
+        "src": "image_8e2b1ccd.jpg",
+        "alt": "Bridal party bouquets"
+      },
+      {
+        "src": "IMG_0795.jpeg",
+        "alt": "Floral arrangement"
+      },
+      {
+        "src": "IMG_2532.jpg",
+        "alt": "Floral arrangement"
+      },
+      {
+        "src": "IMG_3385.jpg",
+        "alt": "Wedding flowers"
+      },
+      {
+        "src": "IMG_3883.jpg",
+        "alt": "Floral design"
+      },
+      {
+        "src": "IMG_7463.jpg",
+        "alt": "Floral arrangement"
+      }
+    ]
+  },
+  "standards": {
+    "title": "our services",
+    "items": [
+      "<strong>Romantic Bouquets</strong><br>Surprise your loved one with a romantic bouquet. Our expert florists will create a stunning bouquet that will take their breath away.",
+      "<strong>Wedding Flowers</strong><br>Make your wedding day unforgettable with beautiful flowers. We offer a wide range of wedding flower services, including bridal bouquets, centerpieces, and more.",
+      "<strong>Corporate Events</strong><br>Add a touch of elegance to your next corporate event with flowers. Our expert team will work with you to create a custom floral design that fits your brand and vision."
+    ]
+  },
+  "contact": {
+    "title": "get in touch",
+    "label": "Your needs are important to us!",
+    "description": "We stay in constant communication with our customers until the job is done. If you have any questions, please contact us. To get a free quote or make an appointment, please fill out the form below, email us, or give us a call.<br><br>The White Cottage Floral Design<br>860-916-9497<br>thewhitecottagefloraldesign@gmail.com",
+    "image": {
+      "src": "drawnarch.webp",
+      "alt": "Floral arch design"
+    },
+    "form": {
+      "action": "https://api.web3forms.com/submit",
+      "access_key": "d5b4112d-ba34-40f3-bfb8-834603d16f17",
+      "name_placeholder": "Your Name",
+      "email_placeholder": "Your Email",
+      "message_placeholder": "Tell us about your event...",
+      "submit_text": "send message"
+    }
+  },
+  "footer": {
+    "instagram": {
+      "url": "https://www.instagram.com/whitecottagefloraldesign",
+      "handle": "@whitecottagefloraldesign"
+    },
+    "copyright": "© white cottage floral design"
+  },
+  "config": {
+    "image_base_path": "https://whitecottagefloraldesign.blob.core.windows.net/photos"
+  }
+}
